@@ -56,7 +56,7 @@ Company company = loadCompany();
 List<String> employeeNames = Json.parse(company)
                       .stream("employees")
                       .map(employee -> employee.string("fullName"))
-                      ,collect(Collectors.toList());
+                      .collect(Collectors.toList());
 ```
 ## 3. Mapping
 Fluent mapping of JSON properties:
