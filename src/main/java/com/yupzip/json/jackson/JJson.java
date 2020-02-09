@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.yupzip.json.Json;
 import com.yupzip.json.JsonParseException;
+import com.yupzip.json.PropertyRequiredException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -189,6 +190,13 @@ public class JJson implements Json {
         return OBJECT_MAPPER.convertValue(properties.get(key), JSON_TYPE);
     }
 
+    public Json objectOrThrow(String key) {
+        if(!properties.containsKey(key) || null == properties.get(key)){
+            throw new PropertyRequiredException();
+        }
+        return OBJECT_MAPPER.convertValue(properties.get(key), JSON_TYPE);
+    }
+
     public Json objectOrThrow(String key, RuntimeException e) {
         if(!properties.containsKey(key) || null == properties.get(key)){
             throw e;
@@ -231,6 +239,17 @@ public class JJson implements Json {
         }
     }
 
+    public String stringOrThrow(String key) {
+        if(!properties.containsKey(key) || null == properties.get(key)){
+            throw new PropertyRequiredException();
+        }
+        try {
+            return (String) properties.get(key);
+        } catch(Exception ex){
+            throw new JsonParseException("Error parsing value to string for key " + key, ex);
+        }
+    }
+
     public String stringOrThrow(String key, RuntimeException e) {
         if(!properties.containsKey(key) || null == properties.get(key)){
             throw e;
@@ -262,6 +281,17 @@ public class JJson implements Json {
             return defaultValue;
         } catch(Exception e){
             throw new JsonParseException("Error parsing value to integer for key " + key, e);
+        }
+    }
+
+    public Integer integerOrThrow(String key) {
+        if(!properties.containsKey(key) || null == properties.get(key)){
+            throw new PropertyRequiredException();
+        }
+        try {
+            return (Integer) properties.get(key);
+        } catch(Exception ex){
+            throw new JsonParseException("Error parsing value to integer for key " + key, ex);
         }
     }
 
@@ -303,6 +333,17 @@ public class JJson implements Json {
         }
     }
 
+    public Double decimalOrThrow(String key) {
+        if(!properties.containsKey(key) || null == properties.get(key)){
+            throw new PropertyRequiredException();
+        }
+        try {
+            return (Double) properties.get(key);
+        } catch(Exception ex){
+            throw new JsonParseException("Error parsing value to double for key " + key, ex);
+        }
+    }
+
     public Double decimalOrThrow(String key, RuntimeException e) {
         if(!properties.containsKey(key) || null == properties.get(key)){
             throw e;
@@ -341,6 +382,17 @@ public class JJson implements Json {
         }
     }
 
+    public Boolean boolOrThrow(String key) {
+        if(!properties.containsKey(key) || null == properties.get(key)){
+            throw new PropertyRequiredException();
+        }
+        try {
+            return (Boolean) properties.get(key);
+        } catch(Exception ex){
+            throw new JsonParseException("Error parsing value to boolean for key " + key, ex);
+        }
+    }
+
     public Boolean boolOrThrow(String key, RuntimeException e) {
         if(!properties.containsKey(key) || null == properties.get(key)){
             throw e;
@@ -361,6 +413,17 @@ public class JJson implements Json {
             return parseDate(new SimpleDateFormat(format), string(key));
         }
         return new Date();
+    }
+
+    public Date dateOrThrow(String key, String format) {
+        if(!properties.containsKey(key) || null == properties.get(key)){
+            throw new PropertyRequiredException();
+        }
+        try {
+            return parseDate(new SimpleDateFormat(format), string(key));
+        } catch(Exception ex){
+            throw new JsonParseException("Error parsing value to date for key " + key, ex);
+        }
     }
 
     public Date dateOrThrow(String key, String format, RuntimeException e) {
