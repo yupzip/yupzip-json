@@ -189,6 +189,13 @@ public class JJson implements Json {
         return OBJECT_MAPPER.convertValue(properties.get(key), JSON_TYPE);
     }
 
+    public Json objectOrThrow(String key, RuntimeException e) {
+        if(!properties.containsKey(key) || null == properties.get(key)){
+            throw e;
+        }
+        return OBJECT_MAPPER.convertValue(properties.get(key), JSON_TYPE);
+    }
+
     public Optional<Json> seek(String key) {
         return Optional.ofNullable(object(key));
     }
@@ -224,6 +231,17 @@ public class JJson implements Json {
         }
     }
 
+    public String stringOrThrow(String key, RuntimeException e) {
+        if(!properties.containsKey(key) || null == properties.get(key)){
+            throw e;
+        }
+        try {
+            return (String) properties.get(key);
+        } catch(Exception ex){
+            throw new JsonParseException("Error parsing value to string for key " + key, ex);
+        }
+    }
+
     public List<String> strings(String key) {
         return OBJECT_MAPPER.convertValue(properties.get(key), LIST_TYPE_STRING);
     }
@@ -244,6 +262,17 @@ public class JJson implements Json {
             return defaultValue;
         } catch(Exception e){
             throw new JsonParseException("Error parsing value to integer for key " + key, e);
+        }
+    }
+
+    public Integer integerOrThrow(String key, RuntimeException e) {
+        if(!properties.containsKey(key) || null == properties.get(key)){
+            throw e;
+        }
+        try {
+            return (Integer) properties.get(key);
+        } catch(Exception ex){
+            throw new JsonParseException("Error parsing value to integer for key " + key, ex);
         }
     }
 
@@ -274,6 +303,17 @@ public class JJson implements Json {
         }
     }
 
+    public Double decimalOrThrow(String key, RuntimeException e) {
+        if(!properties.containsKey(key) || null == properties.get(key)){
+            throw e;
+        }
+        try {
+            return (Double) properties.get(key);
+        } catch(Exception ex){
+            throw new JsonParseException("Error parsing value to double for key " + key, ex);
+        }
+    }
+
     public List<Double> decimals(String key) {
         try {
             return OBJECT_MAPPER.convertValue(properties.get(key), LIST_TYPE_DOUBLE);
@@ -301,6 +341,17 @@ public class JJson implements Json {
         }
     }
 
+    public Boolean boolOrThrow(String key, RuntimeException e) {
+        if(!properties.containsKey(key) || null == properties.get(key)){
+            throw e;
+        }
+        try {
+            return (Boolean) properties.get(key);
+        } catch(Exception ex){
+            throw new JsonParseException("Error parsing value to boolean for key " + key, ex);
+        }
+    }
+
     public Date date(String key, String format) {
         return parseDate(new SimpleDateFormat(format), string(key));
     }
@@ -310,6 +361,17 @@ public class JJson implements Json {
             return parseDate(new SimpleDateFormat(format), string(key));
         }
         return new Date();
+    }
+
+    public Date dateOrThrow(String key, String format, RuntimeException e) {
+        if(!properties.containsKey(key) || null == properties.get(key)){
+            throw e;
+        }
+        try {
+            return parseDate(new SimpleDateFormat(format), string(key));
+        } catch(Exception ex){
+            throw new JsonParseException("Error parsing value to date for key " + key, ex);
+        }
     }
 
     public Date date(String key, String format, String timeZone) {

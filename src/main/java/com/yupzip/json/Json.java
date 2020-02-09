@@ -63,6 +63,8 @@ public interface Json {
 
     Json object(String key);
 
+    Json objectOrThrow(String key, RuntimeException e);
+
     Optional<Json> seek(String key);
 
     Stream<Json> stream(String key);
@@ -75,11 +77,15 @@ public interface Json {
 
     String stringOr(String key, String defaultValue);
 
+    String stringOrThrow(String key, RuntimeException e);
+
     List<String> strings(String key);
 
     Integer integer(String key);
 
     Integer integerOr(String key, int defaultValue);
+
+    Integer integerOrThrow(String key, RuntimeException e);
 
     List<Integer> integers(String key);
 
@@ -87,15 +93,21 @@ public interface Json {
 
     Double decimalOr(String key, double defaultValue);
 
+    Double decimalOrThrow(String key, RuntimeException e);
+
     List<Double> decimals(String key);
 
     Boolean bool(String key);
 
     Boolean boolOr(String key, boolean defaultValue);
 
+    Boolean boolOrThrow(String key, RuntimeException e);
+
     Date date(String key, String format);
 
     Date dateOrNow(String key, String format);
+
+    Date dateOrThrow(String key, String format, RuntimeException e);
 
     Date date(String key, String format, String timeZone);
 
