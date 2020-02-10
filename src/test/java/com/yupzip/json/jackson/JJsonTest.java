@@ -3,8 +3,10 @@ package com.yupzip.json.jackson;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeCreator;
 import com.yupzip.json.Json;
+import com.yupzip.json.JsonConfiguration;
 import com.yupzip.json.JsonConfiguration.MapType;
 import com.yupzip.json.JsonParseException;
+import com.yupzip.json.PropertyRequiredException;
 import com.yupzip.json.mock.Address;
 import com.yupzip.json.mock.Person;
 import org.junit.jupiter.api.Assertions;
@@ -16,6 +18,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -310,7 +313,8 @@ class JJsonTest {
     }
 
     @Test
-    void shouldThrowParseExceptionForInvalidJsonString() {
+    void shouldThrowParseExceptionForInvalidJson() {
+        Assertions.assertThrows(JsonParseException.class, () -> Json.parse(JsonConfiguration.class));
         Assertions.assertThrows(JsonParseException.class, () -> Json.parse("{\"id\":1,\"name\":\"John\",\"weight\":90.1,\"verified\":true"));
     }
 
@@ -441,5 +445,48 @@ class JJsonTest {
         Assertions.assertEquals("weekly", person.find("type", String.class));
         Assertions.assertEquals("100 George Street", person.find("addressLine", String.class));
         Assertions.assertEquals("100 George Street", person.find("streetLine", String.class));
+    }
+
+    @Test
+    void shouldThrowPropertyRequiredException() {
+        Json person = Json.create()
+                .put("id", 1)
+                .put("name", "John")
+                .put("weight", 90.1)
+                .put("verified", true)
+                .put("dob", "1990-01-01")
+                .put("address", Json.create().put("addressLine", "100 George Street"));
+
+        Assertions.assertNotNull(person.objectOrThrow("address"));
+        Assertions.assertNotNull(person.objectOrThrow("address", new PropertyRequiredException()));
+        Assertions.assertThrows(PropertyRequiredException.class, () -> person.objectOrThrow("company"));
+        Assertions.assertThrows(PropertyRequiredException.class, () -> person.objectOrThrow("company", new PropertyRequiredException()));
+
+        Assertions.assertEquals(1, person.integerOrThrow("id"));
+        Assertions.assertEquals(1, person.integerOrThrow("id", new PropertyRequiredException()));
+        Assertions.assertThrows(PropertyRequiredException.class, () -> person.integerOrThrow("identifier"));
+        Assertions.assertThrows(PropertyRequiredException.class, () -> person.integerOrThrow("identifier", new PropertyRequiredException()));
+
+        Assertions.assertEquals("John", person.stringOrThrow("name"));
+        Assertions.assertEquals("John", person.stringOrThrow("name", new PropertyRequiredException()));
+        Assertions.assertThrows(PropertyRequiredException.class, () -> person.stringOrThrow("firstName"));
+        Assertions.assertThrows(PropertyRequiredException.class, () -> person.stringOrThrow("firstName", new PropertyRequiredException()));
+
+        Assertions.assertEquals(90.1, person.decimalOrThrow("weight"));
+        Assertions.assertEquals(90.1, person.decimalOrThrow("weight", new PropertyRequiredException()));
+        Assertions.assertThrows(PropertyRequiredException.class, () -> person.decimalOrThrow("height"));
+        Assertions.assertThrows(PropertyRequiredException.class, () -> person.decimalOrThrow("height", new PropertyRequiredException()));
+
+        Assertions.assertEquals(true, person.boolOrThrow("verified"));
+        Assertions.assertEquals(true, person.boolOrThrow("verified", new PropertyRequiredException()));
+        Assertions.assertThrows(PropertyRequiredException.class, () -> person.boolOrThrow("hasLicence"));
+        Assertions.assertThrows(PropertyRequiredException.class, () -> person.boolOrThrow("hasLicence", new PropertyRequiredException()));
+
+        Date dob = Date.from(LocalDate.of(1990, 1, 1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+        Assertions.assertEquals(dob, person.dateOrThrow("dob", "yyyy-MM-dd"));
+        Assertions.assertEquals(dob, person.dateOrThrow("dob", "yyyy-MM-dd", new PropertyRequiredException()));
+        Assertions.assertThrows(PropertyRequiredException.class, () -> person.dateOrThrow("dateOfBirth", "yyyy-MM-dd"));
+        Assertions.assertThrows(PropertyRequiredException.class, () -> person.dateOrThrow("dateOfBirth", "yyyy-MM-dd", new PropertyRequiredException()));
+
     }
 }
