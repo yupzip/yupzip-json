@@ -1,5 +1,8 @@
 package com.yupzip.json;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.yupzip.json.jackson.JJson;
 
 import java.util.Date;
@@ -11,6 +14,7 @@ import java.util.stream.Stream;
 
 public interface Json {
 
+    @JsonCreator
     static Json create() {
         return JJson.create();
     }
@@ -31,8 +35,10 @@ public interface Json {
         return JJson.array(object);
     }
 
+    @JsonAnySetter
     Json put(String key, Object value);
 
+    @JsonAnyGetter
     Map<String,Object> asMap();
 
     Json put(String key, Json value);
