@@ -302,7 +302,9 @@ class JJsonTest {
 
     @Test
     void shouldParseJsonString() {
-        Json person = Json.parse("{\"id\":1,\"name\":\"John\",\"weight\":90.1,\"verified\":true, \"contactNumbers\":[\"0400000000\",\"0400000001\"]}");
+        String jsonString = "{\"id\":1,\"name\":\"John\",\"weight\":90.1,\"verified\":true, \"contactNumbers\":[\"0400000000\",\"0400000001\"]}";
+
+        Json person = Json.parse(jsonString);
 
         Assertions.assertEquals(1, person.integer("id"));
         Assertions.assertEquals("John", person.string("name"));
@@ -310,6 +312,15 @@ class JJsonTest {
         Assertions.assertTrue(person.bool("verified"));
         Assertions.assertEquals(Arrays.asList("0400000000", "0400000001"), person.strings("contactNumbers"));
         Assertions.assertEquals("{\"id\":1}", Json.create().put("id", 1).toString());
+
+        Person parsedPerson = Json.parseAs(jsonString, Person.class);
+        Assertions.assertNotNull(parsedPerson);
+        Assertions.assertEquals(1, parsedPerson.getId());
+
+        String objectAsString = Json.asString(parsedPerson);
+        Assertions.assertEquals(parsedPerson.getId(), Json.parseAs(objectAsString, Person.class).getId());
+
+        Assertions.assertThrows(JsonParseException.class, () -> Json.parseAs(jsonString, JsonNodeCreator.class));
     }
 
     @Test

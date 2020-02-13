@@ -31,8 +31,16 @@ public interface Json {
         return JJson.parse(jsonString);
     }
 
+    static <T> T parseAs(String jsonString, Class<T> clazz) {
+        return JJson.parseAs(jsonString, clazz);
+    }
+
     static List<Json> array(Object object) {
         return JJson.array(object);
+    }
+
+    static String asString(Object object) {
+        return JJson.asString(object);
     }
 
     @JsonAnySetter

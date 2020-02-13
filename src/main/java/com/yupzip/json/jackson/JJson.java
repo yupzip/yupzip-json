@@ -74,11 +74,27 @@ public class JJson implements Json {
         }
     }
 
+    public static <T> T parseAs(String jsonString, Class<T> clazz) {
+        try {
+            return OBJECT_MAPPER.readValue(jsonString, clazz);
+        } catch(Exception e){
+            throw new JsonParseException("Error parsing JSON string ", e);
+        }
+    }
+
     public static List<Json> array(Object object) {
         try {
             return OBJECT_MAPPER.convertValue(object, LIST_TYPE_JSON);
         } catch(Exception e){
             throw new JsonParseException("Error parsing JSON array ", e);
+        }
+    }
+
+    public static String asString(Object object) {
+        try {
+            return OBJECT_MAPPER.writer().writeValueAsString(object);
+        } catch(JsonProcessingException e){
+            throw new JsonParseException(e);
         }
     }
 
