@@ -83,6 +83,32 @@ class JJsonTest {
     }
 
     @Test
+    void shouldParseByteArray() {
+        Json mock = Json.create()
+                .put("id", 1)
+                .put("name", "John")
+                .put("weight", 90.1)
+                .put("verified", true)
+                .put("numbers", Arrays.asList(1, 2, 3));
+
+        byte[] data = mock.toString().getBytes();
+
+        Json parsedPerson = Json.parse(data);
+        Assertions.assertEquals(1, parsedPerson.integer("id"));
+        Assertions.assertEquals("John", parsedPerson.string("name"));
+        Assertions.assertEquals(90.1, parsedPerson.decimal("weight"));
+        Assertions.assertTrue(parsedPerson.bool("verified"));
+        Assertions.assertEquals(3, parsedPerson.integers("numbers").size());
+
+        Person person = Json.parseAs(data, Person.class);
+        Assertions.assertEquals(1, person.getId());
+        Assertions.assertEquals("John", person.getName());
+        Assertions.assertEquals(90.1, person.getWeight());
+        Assertions.assertTrue(person.getVerified());
+        Assertions.assertEquals(3, person.getNumbers().size());
+    }
+
+    @Test
     void shouldBuildJsonResource() throws IOException {
         URL url = JJsonTest.class.getClassLoader().getResource(MOCK_JSON_RESOURCE);
         Json resource = JSON_PARSER.readValue(Objects.requireNonNull(url), JJson.class);
