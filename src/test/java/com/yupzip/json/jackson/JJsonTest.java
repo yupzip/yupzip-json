@@ -198,6 +198,14 @@ class JJsonTest {
         Assertions.assertEquals(2, person.strings("contactNumbers").size());
         Assertions.assertEquals(2, person.integers("ids").size());
         Assertions.assertEquals(2, person.decimals("scores").size());
+
+        Json city1 = Json.create().put("city", "Sydney");
+        Json city2 = Json.create().put("city", "Melbourne");
+
+        person.append("cities", city1);
+        person.append("cities", city2);
+
+        Assertions.assertEquals(2, person.array("cities").size());
     }
 
     @Test

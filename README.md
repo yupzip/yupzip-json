@@ -12,12 +12,12 @@ It enables fluent building, reading, and mapping of JSON objects and arrays.
 <dependency>
     <groupId>com.yupzip.json</groupId>
     <artifactId>yupzip-json</artifactId>
-    <version>1.3.0</version>
+    <version>1.4.0</version>
 </dependency>
 ```
 ### Gradle
 ```groovy
-implementation group: 'com.yupzip.json', name: 'yupzip-json', version: '1.3.0'
+implementation group: 'com.yupzip.json', name: 'yupzip-json', version: '1.4.0'
 ```
 # Prerequisites
 This library requires JDK 1.8+

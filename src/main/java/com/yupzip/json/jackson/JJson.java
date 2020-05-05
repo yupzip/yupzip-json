@@ -194,6 +194,16 @@ public class JJson implements Json {
         return this;
     }
 
+    @SuppressWarnings("unchecked")
+    public Json append(String key, Json value) {
+        if(null != value){
+            List<Map<String,Object>> values = properties.containsKey(key) ? (List<Map<String,Object>>) properties.get(key) : new ArrayList<>();
+            values.add(value.asMap());
+            properties.put(key, values);
+        }
+        return this;
+    }
+
     public boolean hasKey(String key) {
         return this.properties.containsKey(key);
     }

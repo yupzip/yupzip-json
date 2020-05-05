@@ -75,6 +75,8 @@ public interface Json {
 
     Json append(String key, Double value);
 
+    Json append(String key, Json value);
+
     boolean hasKey(String key);
 
     boolean isEmpty();
