@@ -155,6 +155,7 @@ class JJsonTest {
                 .add("age", 30);
 
         Assertions.assertTrue(person.hasKey("id"));
+        Assertions.assertFalse(person.hasValueFor("id"));
         Assertions.assertTrue(person.hasKey("licences"));
         Assertions.assertFalse(person.hasKey("name"));
         Assertions.assertNull(person.string("id"));

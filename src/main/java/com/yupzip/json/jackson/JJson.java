@@ -208,6 +208,10 @@ public class JJson implements Json {
         return this.properties.containsKey(key);
     }
 
+    public boolean hasValueFor(String key) {
+        return null != this.properties.get(key);
+    }
+
     public boolean isEmpty() {
         return properties.isEmpty();
     }

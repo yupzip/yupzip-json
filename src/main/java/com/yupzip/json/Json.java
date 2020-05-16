@@ -79,6 +79,8 @@ public interface Json {
 
     boolean hasKey(String key);
 
+    boolean hasValueFor(String key);
+
     boolean isEmpty();
 
     <T> T get(String key, Class<T> type);
