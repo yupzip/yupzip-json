@@ -139,6 +139,14 @@ public interface Json {
 
     Boolean boolOrThrow(String key, RuntimeException e);
 
+    boolean anyTrue(String... keys);
+
+    boolean anyFalse(String... keys);
+
+    boolean allTrue(String... keys);
+
+    boolean allFalse(String... keys);
+
     Date date(String key, String format);
 
     Date dateOrNow(String key, String format);

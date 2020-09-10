@@ -535,4 +535,32 @@ class JJsonTest {
         Assertions.assertThrows(PropertyRequiredException.class, () -> person.dateOrThrow("dateOfBirth", "yyyy-MM-dd", new PropertyRequiredException()));
 
     }
+
+    @Test
+    void shouldParseStringAsNumberOrBoolean(){
+        Json person = Json.create()
+                .put("id", "1")
+                .put("name", "John")
+                .put("weight", "90.1")
+                .put("verified", "true");
+
+        Assertions.assertEquals(1, person.integer("id"));
+        Assertions.assertEquals(1.0, person.decimal("id"));
+        Assertions.assertEquals(90.1, person.decimal("weight"));
+        Assertions.assertEquals(true, person.bool("verified"));
+    }
+
+    @Test
+    void shouldCheckMultipleBooleanValues(){
+        Json person = Json.create()
+                .put("id", "1")
+                .put("name", "John")
+                .put("registered", true)
+                .put("verified", true);
+
+        Assertions.assertTrue(person.anyTrue("registered", "verified"));
+        Assertions.assertFalse(person.anyFalse("registered", "verified"));
+        Assertions.assertTrue(person.allTrue("registered", "verified"));
+        Assertions.assertFalse(person.allFalse("registered", "verified"));
+    }
 }

@@ -14,6 +14,7 @@ import com.yupzip.json.PropertyRequiredException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -297,7 +298,7 @@ public class JJson implements Json {
 
     public Integer integer(String key) {
         try {
-            return (Integer) properties.get(key);
+            return get(key, Integer.class);
         } catch(Exception e){
             throw new JsonParseException("Error parsing value to integer for key " + key, e);
         }
@@ -334,7 +335,7 @@ public class JJson implements Json {
 
     public Double decimal(String key) {
         try {
-            return (Double) properties.get(key);
+            return get(key, Double.class);
         } catch(Exception e){
             throw new JsonParseException("Error parsing value to double for key " + key, e);
         }
@@ -371,7 +372,7 @@ public class JJson implements Json {
 
     public Boolean bool(String key) {
         try {
-            return (Boolean) properties.get(key);
+            return get(key, Boolean.class);
         } catch(Exception e){
             throw new JsonParseException("Error parsing value to boolean for key " + key, e);
         }
@@ -396,6 +397,22 @@ public class JJson implements Json {
             throw e;
         }
         return bool(key);
+    }
+
+    public boolean anyTrue(String... keys) {
+        return Arrays.stream(keys).anyMatch(this::bool);
+    }
+
+    public boolean anyFalse(String... keys) {
+        return !anyTrue(keys);
+    }
+
+    public boolean allTrue(String... keys) {
+        return Arrays.stream(keys).allMatch(this::bool);
+    }
+
+    public boolean allFalse(String... keys) {
+        return Arrays.stream(keys).noneMatch(this::bool);
     }
 
     public Date date(String key, String format) {
