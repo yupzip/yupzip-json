@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.yupzip.json.JsonConfiguration;
@@ -14,7 +15,9 @@ import com.yupzip.json.JsonConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -34,6 +37,8 @@ public class JacksonConfiguration {
     static final CollectionType LIST_TYPE_INTEGER;
     static final CollectionType LIST_TYPE_DOUBLE;
 
+    static final Map<String, PropertyNamingStrategy> NAMING_STRATEGY_MAP;
+
     static {
         if(JsonConfiguration.JSON_PARSER == JACKSON){
             Properties props = loadProperties();
@@ -44,6 +49,13 @@ public class JacksonConfiguration {
             LIST_TYPE_STRING = OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, String.class);
             LIST_TYPE_INTEGER = OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, Integer.class);
             LIST_TYPE_DOUBLE = OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, Double.class);
+            NAMING_STRATEGY_MAP = new HashMap<>();
+            NAMING_STRATEGY_MAP.put("SNAKE_CASE", PropertyNamingStrategy.SNAKE_CASE);
+            NAMING_STRATEGY_MAP.put("KEBAB_CASE", PropertyNamingStrategy.KEBAB_CASE);
+            NAMING_STRATEGY_MAP.put("LOWER_CAMEL_CASE", PropertyNamingStrategy.LOWER_CAMEL_CASE);
+            NAMING_STRATEGY_MAP.put("UPPER_CAMEL_CASE", PropertyNamingStrategy.UPPER_CAMEL_CASE);
+            NAMING_STRATEGY_MAP.put("LOWER_CASE", PropertyNamingStrategy.LOWER_CASE);
+            NAMING_STRATEGY_MAP.put("LOWER_DOT_CASE", PropertyNamingStrategy.LOWER_DOT_CASE);
         } else {
             OBJECT_MAPPER = null;
             JSON_TYPE = null;
@@ -52,6 +64,8 @@ public class JacksonConfiguration {
             LIST_TYPE_STRING = null;
             LIST_TYPE_INTEGER = null;
             LIST_TYPE_DOUBLE = null;
+            NAMING_STRATEGY_MAP = null;
+
         }
     }
 
@@ -62,12 +76,12 @@ public class JacksonConfiguration {
                 .configure(FAIL_ON_UNKNOWN_PROPERTIES, parseBoolean(props.getProperty("jackson.deserialization.fail-on-unknown-properties", "false")))
                 .setSerializationInclusion(JsonInclude.Include.valueOf(props.getProperty("jackson.default-property-inclusion", "ALWAYS")));
 
+        setPropertyNamingStrategy(objectMapper, props);
         enableFeatures(objectMapper, props);
         disableFeatures(objectMapper, props);
         configureVisibility(objectMapper, props);
         return objectMapper;
     }
-
 
     private JacksonConfiguration() {}
 
@@ -82,6 +96,16 @@ public class JacksonConfiguration {
             e.printStackTrace();
         }
         return props;
+    }
+
+    private static void setPropertyNamingStrategy(ObjectMapper objectMapper, Properties props) {
+        String namingStrategy = props.getProperty("jackson.property-naming-strategy", "");
+        if(!"".equals(namingStrategy)){
+            PropertyNamingStrategy strategy = NAMING_STRATEGY_MAP.get(namingStrategy);
+            if(null != strategy){
+                objectMapper.setPropertyNamingStrategy(strategy);
+            }
+        }
     }
 
     private static void configureVisibility(ObjectMapper objectMapper, Properties props) {

@@ -12,12 +12,12 @@ It enables fluent building, reading, and mapping of JSON objects and arrays.
 <dependency>
     <groupId>com.yupzip.json</groupId>
     <artifactId>yupzip-json</artifactId>
-    <version>1.6.0</version>
+    <version>1.7.0</version>
 </dependency>
 ```
 ### Gradle
 ```groovy
-implementation group: 'com.yupzip.json', name: 'yupzip-json', version: '1.6.0'
+implementation group: 'com.yupzip.json', name: 'yupzip-json', version: '1.7.0'
 ```
 # Prerequisites
 This library requires JDK 1.8+
@@ -125,6 +125,7 @@ public List<Product> getProducts(String url) {
 ### Jackson serialization/deserialization
 Configuration via application.properties:
 ```properties
+jackson.property-naming-strategy=UPPER_CAMEL_CASE
 jackson.deserialization.fail-on-unknown-properties=false
 jackson.serialization.fail-on-empty-beans=false
 jackson.default-property-inclusion=ALWAYS
