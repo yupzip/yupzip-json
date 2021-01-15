@@ -41,6 +41,13 @@ public class JacksonConfiguration {
 
     static {
         if(JsonConfiguration.JSON_PARSER == JACKSON){
+            NAMING_STRATEGY_MAP = new HashMap<>();
+            NAMING_STRATEGY_MAP.put("SNAKE_CASE", PropertyNamingStrategy.SNAKE_CASE);
+            NAMING_STRATEGY_MAP.put("KEBAB_CASE", PropertyNamingStrategy.KEBAB_CASE);
+            NAMING_STRATEGY_MAP.put("LOWER_CAMEL_CASE", PropertyNamingStrategy.LOWER_CAMEL_CASE);
+            NAMING_STRATEGY_MAP.put("UPPER_CAMEL_CASE", PropertyNamingStrategy.UPPER_CAMEL_CASE);
+            NAMING_STRATEGY_MAP.put("LOWER_CASE", PropertyNamingStrategy.LOWER_CASE);
+            NAMING_STRATEGY_MAP.put("LOWER_DOT_CASE", PropertyNamingStrategy.LOWER_DOT_CASE);
             Properties props = loadProperties();
             OBJECT_MAPPER = getObjectMapper(props);
             JSON_TYPE = OBJECT_MAPPER.reader().getTypeFactory().constructType(JJson.class);
@@ -49,13 +56,6 @@ public class JacksonConfiguration {
             LIST_TYPE_STRING = OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, String.class);
             LIST_TYPE_INTEGER = OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, Integer.class);
             LIST_TYPE_DOUBLE = OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, Double.class);
-            NAMING_STRATEGY_MAP = new HashMap<>();
-            NAMING_STRATEGY_MAP.put("SNAKE_CASE", PropertyNamingStrategy.SNAKE_CASE);
-            NAMING_STRATEGY_MAP.put("KEBAB_CASE", PropertyNamingStrategy.KEBAB_CASE);
-            NAMING_STRATEGY_MAP.put("LOWER_CAMEL_CASE", PropertyNamingStrategy.LOWER_CAMEL_CASE);
-            NAMING_STRATEGY_MAP.put("UPPER_CAMEL_CASE", PropertyNamingStrategy.UPPER_CAMEL_CASE);
-            NAMING_STRATEGY_MAP.put("LOWER_CASE", PropertyNamingStrategy.LOWER_CASE);
-            NAMING_STRATEGY_MAP.put("LOWER_DOT_CASE", PropertyNamingStrategy.LOWER_DOT_CASE);
         } else {
             OBJECT_MAPPER = null;
             JSON_TYPE = null;
