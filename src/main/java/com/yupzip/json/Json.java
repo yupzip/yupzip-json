@@ -113,7 +113,7 @@ public interface Json {
 
     Integer integer(String key);
 
-    Integer integerOr(String key, int defaultValue);
+    int integerOr(String key, int defaultValue);
 
     Integer integerOrThrow(String key);
 
@@ -123,7 +123,7 @@ public interface Json {
 
     Double decimal(String key);
 
-    Double decimalOr(String key, double defaultValue);
+    double decimalOr(String key, double defaultValue);
 
     Double decimalOrThrow(String key);
 
@@ -133,7 +133,7 @@ public interface Json {
 
     Boolean bool(String key);
 
-    Boolean boolOr(String key, boolean defaultValue);
+    boolean boolOr(String key, boolean defaultValue);
 
     Boolean boolOrThrow(String key);
 

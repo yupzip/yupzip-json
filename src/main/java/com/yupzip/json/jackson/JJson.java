@@ -304,7 +304,7 @@ public class JJson implements Json {
         }
     }
 
-    public Integer integerOr(String key, int defaultValue) {
+    public int integerOr(String key, int defaultValue) {
         if(properties.containsKey(key) && null != properties.get(key)){
             return integer(key);
         }
@@ -341,7 +341,7 @@ public class JJson implements Json {
         }
     }
 
-    public Double decimalOr(String key, double defaultValue) {
+    public double decimalOr(String key, double defaultValue) {
         if(properties.containsKey(key) && null != properties.get(key)){
             return decimal(key);
         }
@@ -378,7 +378,7 @@ public class JJson implements Json {
         }
     }
 
-    public Boolean boolOr(String key, boolean defaultValue) {
+    public boolean boolOr(String key, boolean defaultValue) {
         if(properties.containsKey(key) && null != properties.get(key)){
             return bool(key);
         }
