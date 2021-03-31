@@ -47,7 +47,11 @@ public class JacksonConfiguration {
             NAMING_STRATEGY_MAP.put("LOWER_CAMEL_CASE", PropertyNamingStrategy.LOWER_CAMEL_CASE);
             NAMING_STRATEGY_MAP.put("UPPER_CAMEL_CASE", PropertyNamingStrategy.UPPER_CAMEL_CASE);
             NAMING_STRATEGY_MAP.put("LOWER_CASE", PropertyNamingStrategy.LOWER_CASE);
-            NAMING_STRATEGY_MAP.put("LOWER_DOT_CASE", PropertyNamingStrategy.LOWER_DOT_CASE);
+            try {
+                NAMING_STRATEGY_MAP.put("LOWER_DOT_CASE", PropertyNamingStrategy.LOWER_DOT_CASE);
+            } catch(Exception e){
+                // ignoring missing class for backward compatibility
+            }
             Properties props = loadProperties();
             OBJECT_MAPPER = getObjectMapper(props);
             JSON_TYPE = OBJECT_MAPPER.reader().getTypeFactory().constructType(JJson.class);
