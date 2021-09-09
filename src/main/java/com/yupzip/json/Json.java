@@ -81,6 +81,8 @@ public interface Json {
 
     boolean hasValueFor(String key);
 
+    boolean valueEquals(String key, Object value);
+
     boolean isEmpty();
 
     <T> T get(String key, Class<T> type);
@@ -138,6 +140,10 @@ public interface Json {
     Boolean boolOrThrow(String key);
 
     Boolean boolOrThrow(String key, RuntimeException e);
+
+    boolean isTrue(String key);
+
+    boolean isFalse(String key);
 
     boolean anyTrue(String... keys);
 

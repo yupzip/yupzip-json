@@ -213,6 +213,10 @@ public class JJson implements Json {
         return null != this.properties.get(key);
     }
 
+    public boolean valueEquals(String key, Object value) {
+        return hasValueFor(key) && get(key, value.getClass()).equals(value);
+    }
+
     public boolean isEmpty() {
         return properties.isEmpty();
     }
@@ -397,6 +401,14 @@ public class JJson implements Json {
             throw e;
         }
         return bool(key);
+    }
+
+    public boolean isTrue(String key) {
+        return Boolean.TRUE.equals(bool(key));
+    }
+
+    public boolean isFalse(String key) {
+        return Boolean.FALSE.equals(bool(key));
     }
 
     public boolean anyTrue(String... keys) {

@@ -37,7 +37,7 @@ public class JacksonConfiguration {
     static final CollectionType LIST_TYPE_INTEGER;
     static final CollectionType LIST_TYPE_DOUBLE;
 
-    static final Map<String, PropertyNamingStrategy> NAMING_STRATEGY_MAP;
+    static final Map<String,PropertyNamingStrategy> NAMING_STRATEGY_MAP;
 
     static {
         if(JsonConfiguration.JSON_PARSER == JACKSON){

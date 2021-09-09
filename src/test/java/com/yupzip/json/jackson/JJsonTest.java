@@ -288,8 +288,8 @@ class JJsonTest {
         payload.put("integer", 1);
         payload.put("decimal", 1.0);
 
-        Assertions.assertEquals(true, payload.boolOr("flag", false));
-        Assertions.assertEquals(false, payload.boolOr("missingFlag", false));
+        Assertions.assertTrue(payload.boolOr("flag", false));
+        Assertions.assertFalse(payload.boolOr("missingFlag", false));
         Assertions.assertEquals(1, payload.integerOr("integer", 2));
         Assertions.assertEquals(2, payload.integerOr("missingInteger", 2));
         Assertions.assertEquals(1.0, payload.decimalOr("decimal", 2.0));
@@ -537,7 +537,7 @@ class JJsonTest {
     }
 
     @Test
-    void shouldParseStringAsNumberOrBoolean(){
+    void shouldParseStringAsNumberOrBoolean() {
         Json person = Json.create()
                 .put("id", "1")
                 .put("name", "John")
@@ -551,7 +551,21 @@ class JJsonTest {
     }
 
     @Test
-    void shouldCheckMultipleBooleanValues(){
+    void shouldCheckBooleanValue() {
+        Json person = Json.create()
+                .put("id", "true")
+                .put("name", "John")
+                .put("registered", true)
+                .put("verified", false);
+
+        Assertions.assertTrue(person.isTrue("registered"));
+        Assertions.assertTrue(person.isFalse("verified"));
+        Assertions.assertTrue(person.isTrue("id"));
+        Assertions.assertFalse(person.isFalse("age"));
+    }
+
+    @Test
+    void shouldCheckMultipleBooleanValues() {
         Json person = Json.create()
                 .put("id", "1")
                 .put("name", "John")
@@ -562,5 +576,18 @@ class JJsonTest {
         Assertions.assertFalse(person.anyFalse("registered", "verified"));
         Assertions.assertTrue(person.allTrue("registered", "verified"));
         Assertions.assertFalse(person.allFalse("registered", "verified"));
+    }
+
+    @Test
+    void shouldCheckValueEquals() {
+        Json person = Json.create()
+                .put("id", "1")
+                .put("name", "John")
+                .put("registered", true)
+                .put("verified", true);
+
+        Assertions.assertTrue(person.valueEquals("id", "1"));
+        Assertions.assertFalse(person.valueEquals("id", "2"));
+        Assertions.assertFalse(person.valueEquals("age", "30"));
     }
 }
