@@ -276,8 +276,12 @@ public class JJson implements Json {
     }
 
     public String stringOr(String key, String defaultValue) {
-        if(properties.containsKey(key) && null != properties.get(key)){
-            return string(key);
+        try {
+            if(properties.containsKey(key) && null != properties.get(key)){
+                return string(key);
+            }
+        } catch(Exception e){
+            // return default on parsing error
         }
         return defaultValue;
     }
@@ -309,8 +313,12 @@ public class JJson implements Json {
     }
 
     public int integerOr(String key, int defaultValue) {
-        if(properties.containsKey(key) && null != properties.get(key)){
-            return integer(key);
+        try {
+            if(properties.containsKey(key) && null != properties.get(key)){
+                return integer(key);
+            }
+        } catch(Exception e){
+            // return default on parsing error
         }
         return defaultValue;
     }
@@ -346,8 +354,12 @@ public class JJson implements Json {
     }
 
     public double decimalOr(String key, double defaultValue) {
-        if(properties.containsKey(key) && null != properties.get(key)){
-            return decimal(key);
+        try {
+            if(properties.containsKey(key) && null != properties.get(key)){
+                return decimal(key);
+            }
+        } catch(Exception e){
+            // return default on parsing error
         }
         return defaultValue;
     }
