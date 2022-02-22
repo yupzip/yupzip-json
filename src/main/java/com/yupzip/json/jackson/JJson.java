@@ -36,7 +36,7 @@ import static com.yupzip.json.jackson.JacksonConfiguration.LIST_TYPE_JSON;
 import static com.yupzip.json.jackson.JacksonConfiguration.LIST_TYPE_STRING;
 import static com.yupzip.json.jackson.JacksonConfiguration.OBJECT_MAPPER;
 
-@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, isGetterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public class JJson implements Json {
 
     @JsonIgnore
