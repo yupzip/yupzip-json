@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.yupzip'
-version = '1.8.2'
+version = '1.8.3'
 
 compileJava {
 	sourceCompatibility = '8'

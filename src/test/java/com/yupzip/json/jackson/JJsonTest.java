@@ -262,15 +262,11 @@ class JJsonTest {
                 .put("scores", Arrays.asList(100.0, 97.3, 89.1));
 
         Assertions.assertThrows(JsonParseException.class, () -> person.string("id"));
-        Assertions.assertThrows(JsonParseException.class, () -> person.stringOr("id", "1"));
         Assertions.assertThrows(JsonParseException.class, () -> person.integer("name"));
-        Assertions.assertThrows(JsonParseException.class, () -> person.integerOr("name", 1));
         Assertions.assertThrows(JsonParseException.class, () -> person.integers("sports"));
         Assertions.assertThrows(JsonParseException.class, () -> person.decimal("verified"));
-        Assertions.assertThrows(JsonParseException.class, () -> person.decimalOr("verified", 1.0));
         Assertions.assertThrows(JsonParseException.class, () -> person.decimals("sports"));
         Assertions.assertThrows(JsonParseException.class, () -> person.bool("weight"));
-        Assertions.assertThrows(JsonParseException.class, () -> person.boolOr("weight", true));
         Assertions.assertThrows(JsonParseException.class, () -> Json.array(new Person()));
         Assertions.assertThrows(JsonParseException.class, () -> person.convertTo(JsonNodeCreator.class));
     }
@@ -589,5 +585,19 @@ class JJsonTest {
         Assertions.assertTrue(person.valueEquals("id", "1"));
         Assertions.assertFalse(person.valueEquals("id", "2"));
         Assertions.assertFalse(person.valueEquals("age", "30"));
+    }
+
+    @Test
+    void shouldRemove() {
+        Json person = Json.create()
+                .put("id", "1")
+                .put("name", "John")
+                .put("registered", true)
+                .put("verified", true);
+
+        Assertions.assertTrue(person.remove("id"));
+        Assertions.assertFalse(person.hasKey("id"));
+        Assertions.assertFalse(person.hasValueFor("id"));
+        Assertions.assertFalse(person.remove("age"));
     }
 }

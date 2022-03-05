@@ -85,6 +85,8 @@ public interface Json {
 
     boolean isEmpty();
 
+    boolean remove(String key);
+
     <T> T get(String key, Class<T> type);
 
     <T> T convertTo(Class<T> type);

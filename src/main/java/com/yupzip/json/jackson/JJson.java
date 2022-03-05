@@ -43,7 +43,7 @@ public class JJson implements Json {
     private final ObjectWriter objectWriter;
 
     @JsonIgnore
-    private final Map<String,Object> properties;
+    private final Map<String, Object> properties;
 
 
     private JJson() {
@@ -62,7 +62,7 @@ public class JJson implements Json {
     public static Json parse(Object object) {
         try {
             return OBJECT_MAPPER.convertValue(object, JSON_TYPE);
-        } catch(Exception e){
+        } catch (Exception e) {
             throw new JsonParseException("Error parsing object ", e);
         }
     }
@@ -70,7 +70,7 @@ public class JJson implements Json {
     public static Json parse(String jsonString) {
         try {
             return JSON_READER.readValue(jsonString);
-        } catch(Exception e){
+        } catch (Exception e) {
             throw new JsonParseException("Error parsing JSON string ", e);
         }
     }
@@ -78,7 +78,7 @@ public class JJson implements Json {
     public static Json parse(byte[] jsonData) {
         try {
             return JSON_READER.readValue(jsonData);
-        } catch(Exception e){
+        } catch (Exception e) {
             throw new JsonParseException("Error parsing JSON string ", e);
         }
     }
@@ -86,7 +86,7 @@ public class JJson implements Json {
     public static <T> T parseAs(String jsonString, Class<T> clazz) {
         try {
             return OBJECT_MAPPER.readValue(jsonString, clazz);
-        } catch(Exception e){
+        } catch (Exception e) {
             throw new JsonParseException("Error parsing JSON string ", e);
         }
     }
@@ -94,7 +94,7 @@ public class JJson implements Json {
     public static <T> T parseAs(byte[] jsonData, Class<T> clazz) {
         try {
             return OBJECT_MAPPER.readValue(jsonData, clazz);
-        } catch(Exception e){
+        } catch (Exception e) {
             throw new JsonParseException("Error parsing JSON byte array ", e);
         }
     }
@@ -102,7 +102,7 @@ public class JJson implements Json {
     public static List<Json> array(Object object) {
         try {
             return OBJECT_MAPPER.convertValue(object, LIST_TYPE_JSON);
-        } catch(Exception e){
+        } catch (Exception e) {
             throw new JsonParseException("Error parsing JSON array ", e);
         }
     }
@@ -110,7 +110,7 @@ public class JJson implements Json {
     public static String asString(Object object) {
         try {
             return OBJECT_MAPPER.writer().writeValueAsString(object);
-        } catch(JsonProcessingException e){
+        } catch (JsonProcessingException e) {
             throw new JsonParseException(e);
         }
     }
@@ -122,7 +122,7 @@ public class JJson implements Json {
     }
 
     @JsonAnyGetter
-    public Map<String,Object> asMap() {
+    public Map<String, Object> asMap() {
         return properties;
     }
 
@@ -132,7 +132,7 @@ public class JJson implements Json {
     }
 
     public Json put(String key, Iterable<Json> iterable) {
-        if(iterable != null){
+        if (iterable != null) {
             Stream<Json> jsonStream = StreamSupport.stream(iterable.spliterator(), false);
             properties.put(key, jsonStream.map(Json::asMap).collect(Collectors.toList()));
         } else {
@@ -141,27 +141,27 @@ public class JJson implements Json {
         return this;
     }
 
-    public Json put(Map<String,Object> map) {
+    public Json put(Map<String, Object> map) {
         properties.putAll(map);
         return this;
     }
 
     public Json add(String key, Object value) {
-        if(null != value){
+        if (null != value) {
             properties.put(key, value);
         }
         return this;
     }
 
     public Json add(String key, Json value) {
-        if(null != value){
+        if (null != value) {
             properties.put(key, value.asMap());
         }
         return this;
     }
 
     public Json add(String key, Iterable<Json> iterable) {
-        if(iterable != null){
+        if (iterable != null) {
             Stream<Json> jsonStream = StreamSupport.stream(iterable.spliterator(), false);
             properties.put(key, jsonStream.map(Json::asMap).collect(Collectors.toList()));
         }
@@ -169,7 +169,7 @@ public class JJson implements Json {
     }
 
     public Json append(String key, String value) {
-        if(null != value){
+        if (null != value) {
             List<String> values = properties.containsKey(key) ? strings(key) : new ArrayList<>();
             values.add(value);
             properties.put(key, values);
@@ -178,7 +178,7 @@ public class JJson implements Json {
     }
 
     public Json append(String key, Integer value) {
-        if(null != value){
+        if (null != value) {
             List<Integer> values = properties.containsKey(key) ? integers(key) : new ArrayList<>();
             values.add(value);
             properties.put(key, values);
@@ -187,7 +187,7 @@ public class JJson implements Json {
     }
 
     public Json append(String key, Double value) {
-        if(null != value){
+        if (null != value) {
             List<Double> values = properties.containsKey(key) ? decimals(key) : new ArrayList<>();
             values.add(value);
             properties.put(key, values);
@@ -197,8 +197,8 @@ public class JJson implements Json {
 
     @SuppressWarnings("unchecked")
     public Json append(String key, Json value) {
-        if(null != value){
-            List<Map<String,Object>> values = properties.containsKey(key) ? (List<Map<String,Object>>) properties.get(key) : new ArrayList<>();
+        if (null != value) {
+            List<Map<String, Object>> values = properties.containsKey(key) ? (List<Map<String, Object>>) properties.get(key) : new ArrayList<>();
             values.add(value.asMap());
             properties.put(key, values);
         }
@@ -221,6 +221,10 @@ public class JJson implements Json {
         return properties.isEmpty();
     }
 
+    public boolean remove(String key) {
+        return properties.remove(key) != null;
+    }
+
     public <T> T get(String key, Class<T> type) {
         return OBJECT_MAPPER.convertValue(properties.get(key), type);
     }
@@ -228,7 +232,7 @@ public class JJson implements Json {
     public <T> T convertTo(Class<T> type) {
         try {
             return OBJECT_MAPPER.convertValue(this, type);
-        } catch(Exception e){
+        } catch (Exception e) {
             throw new JsonParseException(e);
         }
     }
@@ -238,14 +242,14 @@ public class JJson implements Json {
     }
 
     public Json objectOrThrow(String key) {
-        if(!properties.containsKey(key) || null == properties.get(key)){
+        if (!properties.containsKey(key) || null == properties.get(key)) {
             throw new PropertyRequiredException();
         }
         return OBJECT_MAPPER.convertValue(properties.get(key), JSON_TYPE);
     }
 
     public Json objectOrThrow(String key, RuntimeException e) {
-        if(!properties.containsKey(key) || null == properties.get(key)){
+        if (!properties.containsKey(key) || null == properties.get(key)) {
             throw e;
         }
         return OBJECT_MAPPER.convertValue(properties.get(key), JSON_TYPE);
@@ -270,31 +274,31 @@ public class JJson implements Json {
     public String string(String key) {
         try {
             return (String) properties.get(key);
-        } catch(Exception e){
+        } catch (Exception e) {
             throw new JsonParseException("Error parsing value to string for key " + key, e);
         }
     }
 
     public String stringOr(String key, String defaultValue) {
         try {
-            if(properties.containsKey(key) && null != properties.get(key)){
+            if (properties.containsKey(key) && null != properties.get(key)) {
                 return string(key);
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             // return default on parsing error
         }
         return defaultValue;
     }
 
     public String stringOrThrow(String key) {
-        if(!properties.containsKey(key) || null == properties.get(key)){
+        if (!properties.containsKey(key) || null == properties.get(key)) {
             throw new PropertyRequiredException();
         }
         return string(key);
     }
 
     public String stringOrThrow(String key, RuntimeException e) {
-        if(!properties.containsKey(key) || null == properties.get(key)){
+        if (!properties.containsKey(key) || null == properties.get(key)) {
             throw e;
         }
         return string(key);
@@ -307,31 +311,31 @@ public class JJson implements Json {
     public Integer integer(String key) {
         try {
             return get(key, Integer.class);
-        } catch(Exception e){
+        } catch (Exception e) {
             throw new JsonParseException("Error parsing value to integer for key " + key, e);
         }
     }
 
     public int integerOr(String key, int defaultValue) {
         try {
-            if(properties.containsKey(key) && null != properties.get(key)){
+            if (properties.containsKey(key) && null != properties.get(key)) {
                 return integer(key);
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             // return default on parsing error
         }
         return defaultValue;
     }
 
     public Integer integerOrThrow(String key) {
-        if(!properties.containsKey(key) || null == properties.get(key)){
+        if (!properties.containsKey(key) || null == properties.get(key)) {
             throw new PropertyRequiredException();
         }
         return integer(key);
     }
 
     public Integer integerOrThrow(String key, RuntimeException e) {
-        if(!properties.containsKey(key) || null == properties.get(key)){
+        if (!properties.containsKey(key) || null == properties.get(key)) {
             throw e;
         }
         return integer(key);
@@ -340,7 +344,7 @@ public class JJson implements Json {
     public List<Integer> integers(String key) {
         try {
             return OBJECT_MAPPER.convertValue(properties.get(key), LIST_TYPE_INTEGER);
-        } catch(Exception e){
+        } catch (Exception e) {
             throw new JsonParseException("Error parsing value to integer list for key " + key, e);
         }
     }
@@ -348,31 +352,31 @@ public class JJson implements Json {
     public Double decimal(String key) {
         try {
             return get(key, Double.class);
-        } catch(Exception e){
+        } catch (Exception e) {
             throw new JsonParseException("Error parsing value to double for key " + key, e);
         }
     }
 
     public double decimalOr(String key, double defaultValue) {
         try {
-            if(properties.containsKey(key) && null != properties.get(key)){
+            if (properties.containsKey(key) && null != properties.get(key)) {
                 return decimal(key);
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             // return default on parsing error
         }
         return defaultValue;
     }
 
     public Double decimalOrThrow(String key) {
-        if(!properties.containsKey(key) || null == properties.get(key)){
+        if (!properties.containsKey(key) || null == properties.get(key)) {
             throw new PropertyRequiredException();
         }
         return decimal(key);
     }
 
     public Double decimalOrThrow(String key, RuntimeException e) {
-        if(!properties.containsKey(key) || null == properties.get(key)){
+        if (!properties.containsKey(key) || null == properties.get(key)) {
             throw e;
         }
         return decimal(key);
@@ -381,7 +385,7 @@ public class JJson implements Json {
     public List<Double> decimals(String key) {
         try {
             return OBJECT_MAPPER.convertValue(properties.get(key), LIST_TYPE_DOUBLE);
-        } catch(Exception e){
+        } catch (Exception e) {
             throw new JsonParseException("Error parsing value to double list for key " + key, e);
         }
     }
@@ -389,27 +393,31 @@ public class JJson implements Json {
     public Boolean bool(String key) {
         try {
             return get(key, Boolean.class);
-        } catch(Exception e){
+        } catch (Exception e) {
             throw new JsonParseException("Error parsing value to boolean for key " + key, e);
         }
     }
 
     public boolean boolOr(String key, boolean defaultValue) {
-        if(properties.containsKey(key) && null != properties.get(key)){
-            return bool(key);
+        try {
+            if (properties.containsKey(key) && null != properties.get(key)) {
+                return bool(key);
+            }
+        } catch (Exception e) {
+            // return default on parsing error
         }
         return defaultValue;
     }
 
     public Boolean boolOrThrow(String key) {
-        if(!properties.containsKey(key) || null == properties.get(key)){
+        if (!properties.containsKey(key) || null == properties.get(key)) {
             throw new PropertyRequiredException();
         }
         return bool(key);
     }
 
     public Boolean boolOrThrow(String key, RuntimeException e) {
-        if(!properties.containsKey(key) || null == properties.get(key)){
+        if (!properties.containsKey(key) || null == properties.get(key)) {
             throw e;
         }
         return bool(key);
@@ -444,21 +452,21 @@ public class JJson implements Json {
     }
 
     public Date dateOrNow(String key, String format) {
-        if(properties.containsKey(key) && null != string(key)){
+        if (properties.containsKey(key) && null != string(key)) {
             return parseDate(new SimpleDateFormat(format), string(key));
         }
         return new Date();
     }
 
     public Date dateOrThrow(String key, String format) {
-        if(!properties.containsKey(key) || null == properties.get(key)){
+        if (!properties.containsKey(key) || null == properties.get(key)) {
             throw new PropertyRequiredException();
         }
         return date(key, format);
     }
 
     public Date dateOrThrow(String key, String format, RuntimeException e) {
-        if(!properties.containsKey(key) || null == properties.get(key)){
+        if (!properties.containsKey(key) || null == properties.get(key)) {
             throw e;
         }
         return date(key, format);
@@ -528,23 +536,23 @@ public class JJson implements Json {
 
     @SuppressWarnings("unchecked")
     public <T> T find(String key, Class<T> type) {
-        if(properties.keySet().stream().anyMatch(k -> k.equals(key))){
+        if (properties.keySet().stream().anyMatch(k -> k.equals(key))) {
             return get(key, type);
         }
-        for(Map.Entry<String,Object> entry : properties.entrySet()){
-            if(entry.getValue() instanceof Map){
+        for (Map.Entry<String, Object> entry : properties.entrySet()) {
+            if (entry.getValue() instanceof Map) {
                 T value = JJson.from(entry.getValue()).orElse(JJson.create()).find(key, type);
-                if(null != value){
+                if (null != value) {
                     return value;
                 }
-            } else if(entry.getValue() instanceof List && !((List) entry.getValue()).isEmpty() && ((List) entry.getValue()).get(0) instanceof Map){
-                T value = ((List<Map<String,Object>>) entry.getValue())
+            } else if (entry.getValue() instanceof List && !((List) entry.getValue()).isEmpty() && ((List) entry.getValue()).get(0) instanceof Map) {
+                T value = ((List<Map<String, Object>>) entry.getValue())
                         .stream()
                         .map(map -> JJson.create().put(map).find(key, type))
                         .filter(Objects::nonNull)
                         .findFirst()
                         .orElse(null);
-                if(null != value){
+                if (null != value) {
                     return value;
                 }
             }
@@ -556,17 +564,17 @@ public class JJson implements Json {
     public String toString() {
         try {
             return objectWriter.writeValueAsString(this);
-        } catch(JsonProcessingException e){
+        } catch (JsonProcessingException e) {
             throw new JsonParseException(e);
         }
     }
 
     @Override
     public boolean equals(Object other) {
-        if(this == other){
+        if (this == other) {
             return true;
         }
-        if(other == null || getClass() != other.getClass()){
+        if (other == null || getClass() != other.getClass()) {
             return false;
         }
         JJson json = (JJson) other;
@@ -581,7 +589,7 @@ public class JJson implements Json {
     private Date parseDate(SimpleDateFormat dateFormat, String dateString) {
         try {
             return dateFormat.parse(dateString);
-        } catch(ParseException e){
+        } catch (ParseException e) {
             throw new JsonParseException("Error parsing value to date " + dateString, e);
         }
     }
