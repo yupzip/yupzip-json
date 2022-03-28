@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.yupzip'
-version = '1.8.3'
+version = '1.8.4'
 
 compileJava {
 	sourceCompatibility = '8'
@@ -19,6 +19,7 @@ dependencies {
 
 	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.12.5'
 	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.5'
+	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.12.5'
 
 	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
 	testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.2'
