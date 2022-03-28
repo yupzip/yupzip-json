@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.yupzip.json.JsonConfiguration;
 
 import java.io.IOException;
@@ -84,6 +85,7 @@ public class JacksonConfiguration {
         enableFeatures(objectMapper, props);
         disableFeatures(objectMapper, props);
         configureVisibility(objectMapper, props);
+        objectMapper.registerModule(new JavaTimeModule());
         return objectMapper;
     }
 
