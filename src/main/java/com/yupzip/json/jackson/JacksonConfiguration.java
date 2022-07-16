@@ -7,8 +7,10 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.yupzip.json.JsonConfiguration;
@@ -43,16 +45,11 @@ public class JacksonConfiguration {
     static {
         if(JsonConfiguration.JSON_PARSER == JACKSON){
             NAMING_STRATEGY_MAP = new HashMap<>();
-            NAMING_STRATEGY_MAP.put("SNAKE_CASE", PropertyNamingStrategy.SNAKE_CASE);
-            NAMING_STRATEGY_MAP.put("KEBAB_CASE", PropertyNamingStrategy.KEBAB_CASE);
-            NAMING_STRATEGY_MAP.put("LOWER_CAMEL_CASE", PropertyNamingStrategy.LOWER_CAMEL_CASE);
-            NAMING_STRATEGY_MAP.put("UPPER_CAMEL_CASE", PropertyNamingStrategy.UPPER_CAMEL_CASE);
-            NAMING_STRATEGY_MAP.put("LOWER_CASE", PropertyNamingStrategy.LOWER_CASE);
-            try {
-                NAMING_STRATEGY_MAP.put("LOWER_DOT_CASE", PropertyNamingStrategy.LOWER_DOT_CASE);
-            } catch(Exception e){
-                // ignoring missing class for backward compatibility
-            }
+            NAMING_STRATEGY_MAP.put("SNAKE_CASE", PropertyNamingStrategies.SNAKE_CASE);
+            NAMING_STRATEGY_MAP.put("KEBAB_CASE", PropertyNamingStrategies.KEBAB_CASE);
+            NAMING_STRATEGY_MAP.put("LOWER_CAMEL_CASE", PropertyNamingStrategies.LOWER_CAMEL_CASE);
+            NAMING_STRATEGY_MAP.put("UPPER_CAMEL_CASE", PropertyNamingStrategies.UPPER_CAMEL_CASE);
+            NAMING_STRATEGY_MAP.put("LOWER_CASE", PropertyNamingStrategies.LOWER_CASE);
             Properties props = loadProperties();
             OBJECT_MAPPER = getObjectMapper(props);
             JSON_TYPE = OBJECT_MAPPER.reader().getTypeFactory().constructType(JJson.class);
@@ -75,18 +72,18 @@ public class JacksonConfiguration {
     }
 
     private static ObjectMapper getObjectMapper(Properties props) {
-        ObjectMapper objectMapper = new ObjectMapper()
+        JsonMapper.Builder jsonMapperBuilder = JsonMapper.builder()
                 .configure(FAIL_ON_EMPTY_BEANS, parseBoolean(props.getProperty("jackson.serialization.fail-on-empty-beans", "false")))
                 .configure(WRITE_DATES_AS_TIMESTAMPS, parseBoolean(props.getProperty("jackson.serialization.write-dates-as-timestamps", "false")))
                 .configure(FAIL_ON_UNKNOWN_PROPERTIES, parseBoolean(props.getProperty("jackson.deserialization.fail-on-unknown-properties", "false")))
-                .setSerializationInclusion(JsonInclude.Include.valueOf(props.getProperty("jackson.default-property-inclusion", "ALWAYS")));
+                .serializationInclusion(JsonInclude.Include.valueOf(props.getProperty("jackson.default-property-inclusion", "ALWAYS")));
 
-        setPropertyNamingStrategy(objectMapper, props);
-        enableFeatures(objectMapper, props);
-        disableFeatures(objectMapper, props);
-        configureVisibility(objectMapper, props);
-        objectMapper.registerModule(new JavaTimeModule());
-        return objectMapper;
+        setPropertyNamingStrategy(jsonMapperBuilder, props);
+        enableFeatures(jsonMapperBuilder, props);
+        disableFeatures(jsonMapperBuilder, props);
+        configureVisibility(jsonMapperBuilder, props);
+        jsonMapperBuilder.addModule(new JavaTimeModule());
+        return jsonMapperBuilder.build();
     }
 
     private JacksonConfiguration() {}
@@ -104,18 +101,18 @@ public class JacksonConfiguration {
         return props;
     }
 
-    private static void setPropertyNamingStrategy(ObjectMapper objectMapper, Properties props) {
+    private static void setPropertyNamingStrategy(JsonMapper.Builder jsonMapperBuilder, Properties props) {
         String namingStrategy = props.getProperty("jackson.property-naming-strategy", "");
         if(!"".equals(namingStrategy)){
             PropertyNamingStrategy strategy = NAMING_STRATEGY_MAP.get(namingStrategy);
             if(null != strategy){
-                objectMapper.setPropertyNamingStrategy(strategy);
+                jsonMapperBuilder.propertyNamingStrategy(strategy);
             }
         }
     }
 
-    private static void configureVisibility(ObjectMapper objectMapper, Properties props) {
-        objectMapper.setVisibility(new ObjectMapper()
+    private static void configureVisibility(JsonMapper.Builder jsonMapperBuilder, Properties props) {
+        jsonMapperBuilder.visibility(new ObjectMapper()
                 .getSerializationConfig()
                 .getDefaultVisibilityChecker()
                 .withFieldVisibility(JsonAutoDetect.Visibility.valueOf(props.getProperty("jackson.visibility.field", "ANY")))
@@ -124,21 +121,21 @@ public class JacksonConfiguration {
                 .withSetterVisibility(JsonAutoDetect.Visibility.valueOf(props.getProperty("jackson.visibility.setter", "NONE"))));
     }
 
-    private static void disableFeatures(ObjectMapper objectMapper, Properties props) {
+    private static void disableFeatures(JsonMapper.Builder jsonMapperBuilder, Properties props) {
         String[] disabledFeatures = props.getProperty("jackson.disabled-features", "").split(",");
         Arrays.stream(disabledFeatures).forEach(feature -> {
-            seekDeserializationFeature(feature).ifPresent(objectMapper::disable);
-            seekSerializationFeature(feature).ifPresent(objectMapper::disable);
-            seekMapperFeature(feature).ifPresent(objectMapper::disable);
+            seekDeserializationFeature(feature).ifPresent(jsonMapperBuilder::disable);
+            seekSerializationFeature(feature).ifPresent(jsonMapperBuilder::disable);
+            seekMapperFeature(feature).ifPresent(jsonMapperBuilder::disable);
         });
     }
 
-    private static void enableFeatures(ObjectMapper objectMapper, Properties props) {
+    private static void enableFeatures(JsonMapper.Builder jsonMapperBuilder, Properties props) {
         String[] disabledFeatures = props.getProperty("jackson.enabled-features", "").split(",");
         Arrays.stream(disabledFeatures).forEach(feature -> {
-            seekDeserializationFeature(feature).ifPresent(objectMapper::enable);
-            seekSerializationFeature(feature).ifPresent(objectMapper::enable);
-            seekMapperFeature(feature).ifPresent(objectMapper::enable);
+            seekDeserializationFeature(feature).ifPresent(jsonMapperBuilder::enable);
+            seekSerializationFeature(feature).ifPresent(jsonMapperBuilder::enable);
+            seekMapperFeature(feature).ifPresent(jsonMapperBuilder::enable);
         });
     }
 

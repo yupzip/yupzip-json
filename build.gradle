@@ -5,10 +5,11 @@ plugins {
 }
 
 group = 'com.yupzip'
-version = '1.8.5'
+version = '2.0.0'
 
 compileJava {
-	sourceCompatibility = '8'
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
 }
 
 repositories {
@@ -17,15 +18,15 @@ repositories {
 
 dependencies {
 
-	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.12.5'
-	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.5'
-	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.12.5'
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.13.3'
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.3'
+	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.3'
 
-	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
-	testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.2'
-	testImplementation 'org.mockito:mockito-core:3.12.4'
-	testImplementation 'org.mockito:mockito-junit-jupiter:3.12.4'
-	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+	testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
+	testImplementation 'org.mockito:mockito-core:4.6.1'
+	testImplementation 'org.mockito:mockito-junit-jupiter:4.6.1'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 }
 
 test {
@@ -34,7 +35,7 @@ test {
 
 jacocoTestReport {
 	reports {
-		xml.enabled = true
-		html.enabled = true
+		xml.enabled(true)
+		html.enabled(true)
 	}
 }

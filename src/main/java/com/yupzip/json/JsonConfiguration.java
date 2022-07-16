@@ -37,13 +37,10 @@ public class JsonConfiguration {
         HASH_MAP, LINKED_HASH_MAP;
 
         public Map<String,Object> createMap() {
-            switch(this){
-                case LINKED_HASH_MAP:
-                    return new LinkedHashMap<>();
-                case HASH_MAP:
-                default:
-                    return new HashMap<>();
+            if(this == LINKED_HASH_MAP) {
+                return new LinkedHashMap<>();
             }
+            return new HashMap<>();
         }
     }
 }

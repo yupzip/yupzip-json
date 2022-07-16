@@ -260,7 +260,7 @@ public class JJson implements Json {
     }
 
     public Stream<Json> stream(String key) {
-        return seekArray(key).map(Collection::stream).orElseGet(Stream::empty);
+        return seekArray(key).stream().flatMap(Collection::stream);
     }
 
     public List<Json> array(String key) {
@@ -534,7 +534,7 @@ public class JJson implements Json {
         return this;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked","parameters"})
     public <T> T find(String key, Class<T> type) {
         if (properties.keySet().stream().anyMatch(k -> k.equals(key))) {
             return get(key, type);
@@ -545,7 +545,7 @@ public class JJson implements Json {
                 if (null != value) {
                     return value;
                 }
-            } else if (entry.getValue() instanceof List && !((List) entry.getValue()).isEmpty() && ((List) entry.getValue()).get(0) instanceof Map) {
+            } else if (entry.getValue() instanceof List && !((List<?>) entry.getValue()).isEmpty() && ((List<?>) entry.getValue()).get(0) instanceof Map) {
                 T value = ((List<Map<String, Object>>) entry.getValue())
                         .stream()
                         .map(map -> JJson.create().put(map).find(key, type))
