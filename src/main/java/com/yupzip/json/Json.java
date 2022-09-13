@@ -23,11 +23,23 @@ public interface Json {
         return JJson.from(object);
     }
 
+    static boolean isValid(String jsonString) {
+        try {
+            parse(jsonString);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     static Json parse(Object object) {
         return JJson.parse(object);
     }
 
     static Json parse(String jsonString) {
+        if (null == jsonString) {
+            return Json.create();
+        }
         return JJson.parse(jsonString);
     }
 
@@ -55,13 +67,13 @@ public interface Json {
     Json put(String key, Object value);
 
     @JsonAnyGetter
-    Map<String,Object> asMap();
+    Map<String, Object> asMap();
 
     Json put(String key, Json value);
 
     Json put(String key, Iterable<Json> iterable);
 
-    Json put(Map<String,Object> map);
+    Json put(Map<String, Object> map);
 
     Json add(String key, Object value);
 

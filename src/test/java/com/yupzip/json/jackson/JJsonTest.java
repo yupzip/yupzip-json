@@ -168,6 +168,16 @@ class JJsonTest {
     }
 
     @Test
+    void shouldTestValidJson() {
+        Assertions.assertFalse(Json.isValid("text"));
+        Assertions.assertFalse(Json.isValid(""));
+        Assertions.assertTrue(Json.isValid(null));
+        Assertions.assertTrue(Json.isValid("{}"));
+        Assertions.assertTrue(Json.isValid("""
+                {"id": 1}"""));
+    }
+
+    @Test
     void shouldPutMap() {
         Json person = Json.create()
                 .put("id", 1)

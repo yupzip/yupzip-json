@@ -40,10 +40,10 @@ public class JacksonConfiguration {
     static final CollectionType LIST_TYPE_INTEGER;
     static final CollectionType LIST_TYPE_DOUBLE;
 
-    static final Map<String,PropertyNamingStrategy> NAMING_STRATEGY_MAP;
+    static final Map<String, PropertyNamingStrategy> NAMING_STRATEGY_MAP;
 
     static {
-        if(JsonConfiguration.JSON_PARSER == JACKSON){
+        if (JsonConfiguration.JSON_PARSER == JACKSON) {
             NAMING_STRATEGY_MAP = new HashMap<>();
             NAMING_STRATEGY_MAP.put("SNAKE_CASE", PropertyNamingStrategies.SNAKE_CASE);
             NAMING_STRATEGY_MAP.put("KEBAB_CASE", PropertyNamingStrategies.KEBAB_CASE);
@@ -91,11 +91,11 @@ public class JacksonConfiguration {
 
     static Properties loadProperties() {
         Properties props = new Properties();
-        try(InputStream inputStream = JacksonConfiguration.class.getClassLoader().getResourceAsStream("application.properties")) {
-            if(null != inputStream){
+        try (InputStream inputStream = JacksonConfiguration.class.getClassLoader().getResourceAsStream("application.properties")) {
+            if (null != inputStream) {
                 props.load(inputStream);
             }
-        } catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return props;
@@ -103,9 +103,9 @@ public class JacksonConfiguration {
 
     private static void setPropertyNamingStrategy(JsonMapper.Builder jsonMapperBuilder, Properties props) {
         String namingStrategy = props.getProperty("jackson.property-naming-strategy", "");
-        if(!"".equals(namingStrategy)){
+        if (!"".equals(namingStrategy)) {
             PropertyNamingStrategy strategy = NAMING_STRATEGY_MAP.get(namingStrategy);
-            if(null != strategy){
+            if (null != strategy) {
                 jsonMapperBuilder.propertyNamingStrategy(strategy);
             }
         }
@@ -142,7 +142,7 @@ public class JacksonConfiguration {
     private static Optional<SerializationFeature> seekSerializationFeature(String feature) {
         try {
             return Optional.of(SerializationFeature.valueOf(feature));
-        } catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return Optional.empty();
         }
     }
@@ -150,7 +150,7 @@ public class JacksonConfiguration {
     private static Optional<DeserializationFeature> seekDeserializationFeature(String feature) {
         try {
             return Optional.of(DeserializationFeature.valueOf(feature));
-        } catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return Optional.empty();
         }
     }
@@ -158,7 +158,7 @@ public class JacksonConfiguration {
     private static Optional<MapperFeature> seekMapperFeature(String feature) {
         try {
             return Optional.of(MapperFeature.valueOf(feature));
-        } catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return Optional.empty();
         }
     }

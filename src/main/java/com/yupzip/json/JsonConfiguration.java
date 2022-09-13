@@ -22,11 +22,11 @@ public class JsonConfiguration {
 
     static Properties loadProperties() {
         Properties props = new Properties();
-        try(InputStream inputStream = JsonConfiguration.class.getClassLoader().getResourceAsStream("application.properties")) {
-            if(null != inputStream){
+        try (InputStream inputStream = JsonConfiguration.class.getClassLoader().getResourceAsStream("application.properties")) {
+            if (null != inputStream) {
                 props.load(inputStream);
             }
-        } catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return props;
@@ -36,8 +36,8 @@ public class JsonConfiguration {
 
         HASH_MAP, LINKED_HASH_MAP;
 
-        public Map<String,Object> createMap() {
-            if(this == LINKED_HASH_MAP) {
+        public Map<String, Object> createMap() {
+            if (this == LINKED_HASH_MAP) {
                 return new LinkedHashMap<>();
             }
             return new HashMap<>();

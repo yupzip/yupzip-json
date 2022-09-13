@@ -534,7 +534,7 @@ public class JJson implements Json {
         return this;
     }
 
-    @SuppressWarnings({"unchecked","parameters"})
+    @SuppressWarnings({"unchecked", "parameters"})
     public <T> T find(String key, Class<T> type) {
         if (properties.keySet().stream().anyMatch(k -> k.equals(key))) {
             return get(key, type);
