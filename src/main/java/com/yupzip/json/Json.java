@@ -99,6 +99,10 @@ public interface Json {
 
     boolean remove(String key);
 
+    boolean remove(String... keys);
+
+    boolean remove(List<String> keys);
+
     <T> T get(String key, Class<T> type);
 
     <T> T convertTo(Class<T> type);

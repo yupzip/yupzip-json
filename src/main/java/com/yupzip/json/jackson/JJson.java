@@ -225,6 +225,25 @@ public class JJson implements Json {
         return properties.remove(key) != null;
     }
 
+    public boolean remove(String... keys) {
+        return Arrays.stream(keys)
+                .map(this::remove)
+                .toList()
+                .stream()
+                .anyMatch(result -> result);
+    }
+
+    public boolean remove(List<String> keys) {
+        if (keys == null) {
+            return false;
+        }
+        return keys.stream()
+                .map(this::remove)
+                .toList()
+                .stream()
+                .anyMatch(result -> result);
+    }
+
     public <T> T get(String key, Class<T> type) {
         return OBJECT_MAPPER.convertValue(properties.get(key), type);
     }

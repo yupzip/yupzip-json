@@ -610,4 +610,33 @@ class JJsonTest {
         Assertions.assertFalse(person.hasValueFor("id"));
         Assertions.assertFalse(person.remove("age"));
     }
+
+    @Test
+    void shouldRemoveAll() {
+        Json person = Json.create()
+                .put("id", "1")
+                .put("name", "John")
+                .put("registered", true)
+                .put("verified", true);
+
+        Assertions.assertTrue(person.remove("id", "name"));
+        Assertions.assertFalse(person.hasKey("id"));
+        Assertions.assertFalse(person.hasKey("name"));
+        Assertions.assertFalse(person.hasValueFor("id"));
+        Assertions.assertFalse(person.hasValueFor("name"));
+
+        Assertions.assertFalse(person.remove((String) null));
+
+        Assertions.assertFalse(person.remove("registered2"));
+        Assertions.assertFalse(person.hasKey("registered2"));
+        Assertions.assertFalse(person.hasKey("registered2"));
+        Assertions.assertTrue(person.hasValueFor("registered"));
+        Assertions.assertTrue(person.hasValueFor("registered"));
+
+        Assertions.assertTrue(person.remove(List.of("verified", "verified2")));
+        Assertions.assertFalse(person.hasKey("verified"));
+        Assertions.assertFalse(person.hasKey("verified2"));
+
+        Assertions.assertFalse(person.remove((List<String>) null));
+    }
 }
