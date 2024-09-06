@@ -137,7 +137,7 @@ class JJsonTest {
                 );
 
         Assertions.assertEquals(resource, payload);
-        if(MAP_TYPE == MapType.LINKED_HASH_MAP){
+        if (MAP_TYPE == MapType.LINKED_HASH_MAP) {
             Assertions.assertEquals(resource.toString(), payload.toString());
         }
     }
@@ -189,6 +189,26 @@ class JJsonTest {
 
         Assertions.assertEquals(1, empty.integer("id"));
         Assertions.assertEquals("John", empty.string("name"));
+    }
+
+    @Test
+    void shouldReturnObjectOrDefault() {
+        Json data = Json.create()
+                .put("employee", Json.create()
+                        .put("id", 1)
+                        .put("name", "John"));
+
+        Json defaultAddress = Json.create().put("address1", "100 Pitt Street");
+        Json defaultEmployee = Json.create()
+                .put("id", 2)
+                .put("name", "Jack");
+
+        Assertions.assertNull(data.object("address"));
+        Assertions.assertNotNull(data.object("employee"));
+        Assertions.assertNotNull(data.objectOr("address", defaultAddress));
+        Assertions.assertNotNull(data.objectOr("employee", defaultEmployee));
+        Assertions.assertEquals(data.objectOr("employee", defaultEmployee).integer("id"), 1);
+        Assertions.assertEquals(data.objectOr("address", defaultAddress).string("address1"), "100 Pitt Street");
     }
 
     @Test
@@ -336,7 +356,7 @@ class JJsonTest {
     @Test
     void shouldThrowJsonExceptionWhenFailOnUnknownPropertiesFeatureIsTrue() {
         Properties props = JacksonConfiguration.loadProperties();
-        if(parseBoolean(props.getProperty("jackson.deserialization.fail-on-unknown-properties", "false"))){
+        if (parseBoolean(props.getProperty("jackson.deserialization.fail-on-unknown-properties", "false"))) {
             Assertions.assertThrows(JsonParseException.class, () -> Json.create().put("unknownProperty", "something").convertTo(Person.class));
         }
     }

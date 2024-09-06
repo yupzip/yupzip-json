@@ -109,6 +109,8 @@ public interface Json {
 
     Json object(String key);
 
+    Json objectOr(String key, Json object);
+
     Json objectOrThrow(String key);
 
     Json objectOrThrow(String key, RuntimeException e);

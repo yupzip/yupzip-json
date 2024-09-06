@@ -260,6 +260,11 @@ public class JJson implements Json {
         return OBJECT_MAPPER.convertValue(properties.get(key), JSON_TYPE);
     }
 
+    public Json objectOr(String key, Json object) {
+        Json result = object(key);
+        return result == null ? object : result;
+    }
+
     public Json objectOrThrow(String key) {
         if (!properties.containsKey(key) || null == properties.get(key)) {
             throw new PropertyRequiredException();
