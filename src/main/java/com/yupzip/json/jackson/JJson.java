@@ -13,6 +13,8 @@ import com.yupzip.json.PropertyRequiredException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -505,6 +507,31 @@ public class JJson implements Json {
     public Date date(String dateKey, String timeKey, String joinString, String format) {
         String dateTime = string(dateKey).concat(joinString).concat(string(timeKey));
         return parseDate(new SimpleDateFormat(format), dateTime);
+    }
+
+    public LocalDate localDate(String key, String format) {
+        return LocalDate.parse(string(key), DateTimeFormatter.ofPattern(format));
+    }
+
+    public LocalDate localDateOr(String key, String format, LocalDate defaultValue) {
+        if (!properties.containsKey(key) || null == properties.get(key)) {
+            return defaultValue;
+        }
+        return LocalDate.parse(string(key), DateTimeFormatter.ofPattern(format));
+    }
+
+    public LocalDate localDateOrToday(String key, String format) {
+        if (!properties.containsKey(key) || null == properties.get(key)) {
+            return LocalDate.now();
+        }
+        return LocalDate.parse(string(key), DateTimeFormatter.ofPattern(format));
+    }
+
+    public LocalDate localDateOrThrow(String key, String format, RuntimeException e) {
+        if (!properties.containsKey(key) || null == properties.get(key)) {
+            throw e;
+        }
+        return localDate(key, format);
     }
 
     public Json string(String key, Consumer<String> consumer) {

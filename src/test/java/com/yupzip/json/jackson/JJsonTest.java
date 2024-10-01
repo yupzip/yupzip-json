@@ -22,6 +22,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
@@ -658,5 +660,26 @@ class JJsonTest {
         Assertions.assertFalse(person.hasKey("verified2"));
 
         Assertions.assertFalse(person.remove((List<String>) null));
+    }
+
+    @Test
+    void shouldParseLocalDate() {
+        Json payload = Json.create()
+                .put("date", "2024-10-01")
+                .put("today", DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDate.now()));
+
+        Assertions.assertEquals(LocalDate.of(2024, 10, 1), payload.localDate("date", "yyyy-MM-dd"));
+        Assertions.assertThrows(DateTimeParseException.class, () -> payload.localDate("date", "yyyy-MMM-dd"));
+
+        Assertions.assertEquals(LocalDate.now(), payload.localDateOrToday("today", "yyyy-MM-dd"));
+        Assertions.assertEquals(LocalDate.now(), payload.localDateOrToday("today", "yyyy-MM-dd"));
+        Assertions.assertThrows(DateTimeParseException.class, () -> payload.localDateOrToday("today", "yyyy-MMM-dd"));
+
+        Assertions.assertEquals(LocalDate.of(2024, 10, 1), payload.localDateOr("date", "yyyy-MM-dd", LocalDate.of(2024, 10, 2)));
+        Assertions.assertEquals(LocalDate.of(2024, 10, 2), payload.localDateOr("date2", "yyyy-MM-dd", LocalDate.of(2024, 10, 2)));
+        Assertions.assertThrows(DateTimeParseException.class, () -> payload.localDateOr("today", "yyyy-MMM-dd", LocalDate.now()));
+
+        Assertions.assertEquals(LocalDate.of(2024, 10, 1), payload.localDateOrThrow("date", "yyyy-MM-dd", new RuntimeException()));
+        Assertions.assertThrows(RuntimeException.class, () -> payload.localDate("date2", "yyyy-MMM-dd"));
     }
 }

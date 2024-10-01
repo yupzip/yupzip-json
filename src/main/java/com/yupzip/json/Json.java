@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.yupzip.json.jackson.JJson;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -184,6 +185,14 @@ public interface Json {
     Date date(String key, String format, String timeZone);
 
     Date date(String dateKey, String timeKey, String joinString, String format);
+
+    LocalDate localDate(String key, String format);
+
+    LocalDate localDateOr(String key, String format, LocalDate defaultValue);
+
+    LocalDate localDateOrToday(String key, String format);
+
+    LocalDate localDateOrThrow(String key, String format, RuntimeException e);
 
     Json string(String key, Consumer<String> consumer);
 
