@@ -1,7 +1,5 @@
 package com.yupzip.json.jackson;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeCreator;
 import com.yupzip.json.Json;
 import com.yupzip.json.JsonConfiguration;
 import com.yupzip.json.JsonConfiguration.MapType;
@@ -13,6 +11,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.JsonNodeCreator;
 
 import java.io.IOException;
 import java.net.URL;
@@ -42,7 +42,7 @@ import static java.util.Collections.singletonList;
 @ExtendWith(MockitoExtension.class)
 class JJsonTest {
 
-    private static final ObjectMapper JSON_PARSER = new ObjectMapper();
+    private static final JsonMapper JSON_PARSER = new JsonMapper();
     private static final String MOCK_JSON_RESOURCE = "jsonapi-org-example.json";
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'hh:mm:ss.SSSX";
 
@@ -50,7 +50,7 @@ class JJsonTest {
     void shouldParseJsonResource() throws IOException, ParseException {
         URL url = JJsonTest.class.getClassLoader().getResource(MOCK_JSON_RESOURCE);
 
-        Json payload = JSON_PARSER.readValue(Objects.requireNonNull(url), JJson.class);
+        Json payload = JSON_PARSER.readValue(Objects.requireNonNull(url).openStream(), JJson.class);
         Assertions.assertNotNull(payload);
 
         List<Json> dataList = payload.array("data");
@@ -113,7 +113,7 @@ class JJsonTest {
     @Test
     void shouldBuildJsonResource() throws IOException {
         URL url = JJsonTest.class.getClassLoader().getResource(MOCK_JSON_RESOURCE);
-        Json resource = JSON_PARSER.readValue(Objects.requireNonNull(url), JJson.class);
+        Json resource = JSON_PARSER.readValue(Objects.requireNonNull(url).openStream(), JJson.class);
 
         Json payload = Json.create()
                 .put("data", singletonList(Json.create()
@@ -209,8 +209,8 @@ class JJsonTest {
         Assertions.assertNotNull(data.object("employee"));
         Assertions.assertNotNull(data.objectOr("address", defaultAddress));
         Assertions.assertNotNull(data.objectOr("employee", defaultEmployee));
-        Assertions.assertEquals(data.objectOr("employee", defaultEmployee).integer("id"), 1);
-        Assertions.assertEquals(data.objectOr("address", defaultAddress).string("address1"), "100 Pitt Street");
+        Assertions.assertEquals(1, data.objectOr("employee", defaultEmployee).integer("id"));
+        Assertions.assertEquals("100 Pitt Street", data.objectOr("address", defaultAddress).string("address1"));
     }
 
     @Test
@@ -306,7 +306,7 @@ class JJsonTest {
     @Test
     void shouldParseValueOrReturnDefault() throws IOException {
         URL url = JJsonTest.class.getClassLoader().getResource(MOCK_JSON_RESOURCE);
-        Json payload = JSON_PARSER.readValue(Objects.requireNonNull(url), JJson.class);
+        Json payload = JSON_PARSER.readValue(Objects.requireNonNull(url).openStream(), JJson.class);
 
         Json data = payload.array("data").getFirst();
         Assertions.assertEquals("1", data.stringOr("id", "2"));
@@ -327,7 +327,7 @@ class JJsonTest {
     @Test
     void shouldReturnOptionalForSeek() throws IOException {
         URL url = JJsonTest.class.getClassLoader().getResource(MOCK_JSON_RESOURCE);
-        Json payload = JSON_PARSER.readValue(Objects.requireNonNull(url), JJson.class);
+        Json payload = JSON_PARSER.readValue(Objects.requireNonNull(url).openStream(), JJson.class);
 
         Assertions.assertTrue(payload.seekArray("data").isPresent());
         Assertions.assertFalse(payload.seekArray("missingData").isPresent());

@@ -2,18 +2,16 @@ package com.yupzip.json.jackson;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.type.CollectionType;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.yupzip.json.JsonConfiguration;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.PropertyNamingStrategy;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.type.CollectionType;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,15 +22,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
-import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
-import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
-import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static com.yupzip.json.JsonParser.JACKSON;
 import static java.lang.Boolean.parseBoolean;
+import static tools.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
+import static tools.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
+import static tools.jackson.databind.cfg.DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS;
 
 public class JacksonConfiguration {
 
-    static final ObjectMapper OBJECT_MAPPER;
+    static final JsonMapper JSON_MAPPER;
     static final JavaType JSON_TYPE;
     static final ObjectReader JSON_READER;
     static final CollectionType LIST_TYPE_JSON;
@@ -51,15 +49,15 @@ public class JacksonConfiguration {
             NAMING_STRATEGY_MAP.put("UPPER_CAMEL_CASE", PropertyNamingStrategies.UPPER_CAMEL_CASE);
             NAMING_STRATEGY_MAP.put("LOWER_CASE", PropertyNamingStrategies.LOWER_CASE);
             Properties props = loadProperties();
-            OBJECT_MAPPER = getObjectMapper(props);
-            JSON_TYPE = OBJECT_MAPPER.reader().getTypeFactory().constructType(JJson.class);
-            JSON_READER = OBJECT_MAPPER.reader().forType(JSON_TYPE);
-            LIST_TYPE_JSON = OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, JJson.class);
-            LIST_TYPE_STRING = OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, String.class);
-            LIST_TYPE_INTEGER = OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, Integer.class);
-            LIST_TYPE_DOUBLE = OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, Double.class);
+            JSON_MAPPER = getJsonMapper(props);
+            JSON_TYPE = JSON_MAPPER.reader().typeFactory().constructType(JJson.class);
+            JSON_READER = JSON_MAPPER.reader().forType(JSON_TYPE);
+            LIST_TYPE_JSON = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, JJson.class);
+            LIST_TYPE_STRING = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, String.class);
+            LIST_TYPE_INTEGER = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, Integer.class);
+            LIST_TYPE_DOUBLE = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, Double.class);
         } else {
-            OBJECT_MAPPER = null;
+            JSON_MAPPER = null;
             JSON_TYPE = null;
             JSON_READER = null;
             LIST_TYPE_JSON = null;
@@ -71,18 +69,20 @@ public class JacksonConfiguration {
         }
     }
 
-    private static ObjectMapper getObjectMapper(Properties props) {
+    private static JsonMapper getJsonMapper(Properties props) {
         JsonMapper.Builder jsonMapperBuilder = JsonMapper.builder()
                 .configure(FAIL_ON_EMPTY_BEANS, parseBoolean(props.getProperty("jackson.serialization.fail-on-empty-beans", "false")))
                 .configure(WRITE_DATES_AS_TIMESTAMPS, parseBoolean(props.getProperty("jackson.serialization.write-dates-as-timestamps", "false")))
                 .configure(FAIL_ON_UNKNOWN_PROPERTIES, parseBoolean(props.getProperty("jackson.deserialization.fail-on-unknown-properties", "false")))
-                .serializationInclusion(JsonInclude.Include.valueOf(props.getProperty("jackson.default-property-inclusion", "ALWAYS")));
+                .changeDefaultPropertyInclusion(v -> JsonInclude.Value.construct(
+                        JsonInclude.Include.valueOf(props.getProperty("jackson.default-property-inclusion", "ALWAYS")),
+                        JsonInclude.Include.valueOf(props.getProperty("jackson.default-property-inclusion", "ALWAYS"))
+                ));
 
         setPropertyNamingStrategy(jsonMapperBuilder, props);
         enableFeatures(jsonMapperBuilder, props);
         disableFeatures(jsonMapperBuilder, props);
         configureVisibility(jsonMapperBuilder, props);
-        jsonMapperBuilder.addModule(new JavaTimeModule());
         return jsonMapperBuilder.build();
     }
 
@@ -112,8 +112,8 @@ public class JacksonConfiguration {
     }
 
     private static void configureVisibility(JsonMapper.Builder jsonMapperBuilder, Properties props) {
-        jsonMapperBuilder.visibility(new ObjectMapper()
-                .getSerializationConfig()
+        jsonMapperBuilder.changeDefaultVisibility(v -> new JsonMapper()
+                .serializationConfig()
                 .getDefaultVisibilityChecker()
                 .withFieldVisibility(JsonAutoDetect.Visibility.valueOf(props.getProperty("jackson.visibility.field", "ANY")))
                 .withGetterVisibility(JsonAutoDetect.Visibility.valueOf(props.getProperty("jackson.visibility.getter", "NONE")))
