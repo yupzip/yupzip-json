@@ -1,10 +1,9 @@
 package com.yupzip.json;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.yupzip.json.jackson.JJson;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
@@ -64,10 +63,8 @@ public interface Json {
         return JJson.asString(object);
     }
 
-    @JsonAnySetter
     Json put(String key, Object value);
 
-    @JsonAnyGetter
     Map<String, Object> asMap();
 
     Json put(String key, Json value);
@@ -144,6 +141,16 @@ public interface Json {
 
     List<Integer> integers(String key);
 
+    Long longInt(String key);
+
+    long longOr(String key, long defaultValue);
+
+    Long longOrThrow(String key);
+
+    Long longOrThrow(String key, RuntimeException e);
+
+    List<Long> longs(String key);
+
     Double decimal(String key);
 
     double decimalOr(String key, double defaultValue);
@@ -153,6 +160,16 @@ public interface Json {
     Double decimalOrThrow(String key, RuntimeException e);
 
     List<Double> decimals(String key);
+
+    BigDecimal bigDecimal(String key);
+
+    BigDecimal bigDecimalOr(String key, BigDecimal defaultValue);
+
+    BigDecimal bigDecimalOrThrow(String key);
+
+    BigDecimal bigDecimalOrThrow(String key, RuntimeException e);
+
+    List<BigDecimal> bigDecimals(String key);
 
     Boolean bool(String key);
 
@@ -202,9 +219,17 @@ public interface Json {
 
     Json integers(String key, Consumer<List<Integer>> consumer);
 
+    Json longInt(String key, Consumer<Long> consumer);
+
+    Json longs(String key, Consumer<List<Long>> consumer);
+
     Json decimal(String key, Consumer<Double> consumer);
 
     Json decimals(String key, Consumer<List<Double>> consumer);
+
+    Json bigDecimal(String key, Consumer<BigDecimal> consumer);
+
+    Json bigDecimals(String key, Consumer<List<BigDecimal>> consumer);
 
     Json bool(String key, Consumer<Boolean> consumer);
 

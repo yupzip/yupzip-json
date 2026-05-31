@@ -15,6 +15,7 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.JsonNodeCreator;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -44,7 +45,7 @@ class JJsonTest {
 
     private static final JsonMapper JSON_PARSER = new JsonMapper();
     private static final String MOCK_JSON_RESOURCE = "jsonapi-org-example.json";
-    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'hh:mm:ss.SSSX";
+    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSX";
 
     @Test
     void shouldParseJsonResource() throws IOException, ParseException {
@@ -262,6 +263,75 @@ class JJsonTest {
     }
 
     @Test
+    void shouldParseLongValues() {
+        long aboveIntMax = Integer.MAX_VALUE + 1L;
+        Json payload = Json.create()
+                .put("id", 1L)
+                .put("epoch", aboveIntMax)
+                .put("stringNumber", "1234567890123")
+                .put("ids", Arrays.asList(1L, 2L, aboveIntMax));
+
+        Assertions.assertEquals(1L, payload.longInt("id"));
+        Assertions.assertEquals(aboveIntMax, payload.longInt("epoch"));
+        Assertions.assertEquals(1234567890123L, payload.longInt("stringNumber"));
+        Assertions.assertNull(payload.longInt("missing"));
+
+        Assertions.assertEquals(1L, payload.longOr("id", 99L));
+        Assertions.assertEquals(99L, payload.longOr("missing", 99L));
+
+        Assertions.assertEquals(1L, payload.longOrThrow("id"));
+        Assertions.assertEquals(1L, payload.longOrThrow("id", new PropertyRequiredException()));
+        Assertions.assertThrows(PropertyRequiredException.class, () -> payload.longOrThrow("missing"));
+        Assertions.assertThrows(PropertyRequiredException.class, () -> payload.longOrThrow("missing", new PropertyRequiredException()));
+
+        Assertions.assertEquals(Arrays.asList(1L, 2L, aboveIntMax), payload.longs("ids"));
+
+        long[] consumed = new long[1];
+        payload.longInt("id", v -> consumed[0] = v);
+        Assertions.assertEquals(1L, consumed[0]);
+
+        long[] sum = new long[1];
+        payload.longs("ids", list -> sum[0] = list.stream().mapToLong(Long::longValue).sum());
+        Assertions.assertEquals(3L + aboveIntMax, sum[0]);
+    }
+
+    @Test
+    void shouldParseBigDecimalValues() {
+        BigDecimal price = new BigDecimal("19.99");
+        BigDecimal large = new BigDecimal("12345678901234567890.123456789");
+        Json payload = Json.create()
+                .put("price", price)
+                .put("balance", large)
+                .put("stringNumber", "0.1")
+                .put("prices", Arrays.asList(new BigDecimal("1.10"), new BigDecimal("2.20"), new BigDecimal("3.30")));
+
+        Assertions.assertEquals(price, payload.bigDecimal("price"));
+        Assertions.assertEquals(large, payload.bigDecimal("balance"));
+        Assertions.assertEquals(new BigDecimal("0.1"), payload.bigDecimal("stringNumber"));
+        Assertions.assertNull(payload.bigDecimal("missing"));
+
+        Assertions.assertEquals(price, payload.bigDecimalOr("price", BigDecimal.ZERO));
+        Assertions.assertEquals(BigDecimal.ZERO, payload.bigDecimalOr("missing", BigDecimal.ZERO));
+
+        Assertions.assertEquals(price, payload.bigDecimalOrThrow("price"));
+        Assertions.assertEquals(price, payload.bigDecimalOrThrow("price", new PropertyRequiredException()));
+        Assertions.assertThrows(PropertyRequiredException.class, () -> payload.bigDecimalOrThrow("missing"));
+        Assertions.assertThrows(PropertyRequiredException.class, () -> payload.bigDecimalOrThrow("missing", new PropertyRequiredException()));
+
+        List<BigDecimal> prices = payload.bigDecimals("prices");
+        Assertions.assertEquals(3, prices.size());
+        Assertions.assertEquals(new BigDecimal("1.10"), prices.getFirst());
+
+        BigDecimal[] consumed = new BigDecimal[1];
+        payload.bigDecimal("price", v -> consumed[0] = v);
+        Assertions.assertEquals(price, consumed[0]);
+
+        BigDecimal[] total = {BigDecimal.ZERO};
+        payload.bigDecimals("prices", list -> total[0] = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
+        Assertions.assertEquals(new BigDecimal("6.60"), total[0]);
+    }
+
+    @Test
     void shouldParseDateValues() {
         Json dates = Json.create()
                 .put("zonedDateTime", "2020-01-25T09:00:00+00:00")
@@ -293,7 +363,6 @@ class JJsonTest {
                 .put("numbers", Arrays.asList(1, 2, 3))
                 .put("scores", Arrays.asList(100.0, 97.3, 89.1));
 
-        Assertions.assertThrows(JsonParseException.class, () -> person.string("id"));
         Assertions.assertThrows(JsonParseException.class, () -> person.integer("name"));
         Assertions.assertThrows(JsonParseException.class, () -> person.integers("sports"));
         Assertions.assertThrows(JsonParseException.class, () -> person.decimal("verified"));

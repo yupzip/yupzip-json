@@ -2,7 +2,6 @@ package com.yupzip.json.jackson;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.yupzip.json.JsonConfiguration;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.MapperFeature;
@@ -22,7 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
-import static com.yupzip.json.JsonParser.JACKSON;
 import static java.lang.Boolean.parseBoolean;
 import static tools.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static tools.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
@@ -36,37 +34,29 @@ public class JacksonConfiguration {
     static final CollectionType LIST_TYPE_JSON;
     static final CollectionType LIST_TYPE_STRING;
     static final CollectionType LIST_TYPE_INTEGER;
+    static final CollectionType LIST_TYPE_LONG;
     static final CollectionType LIST_TYPE_DOUBLE;
+    static final CollectionType LIST_TYPE_BIG_DECIMAL;
 
     static final Map<String, PropertyNamingStrategy> NAMING_STRATEGY_MAP;
 
     static {
-        if (JsonConfiguration.JSON_PARSER == JACKSON) {
-            NAMING_STRATEGY_MAP = new HashMap<>();
-            NAMING_STRATEGY_MAP.put("SNAKE_CASE", PropertyNamingStrategies.SNAKE_CASE);
-            NAMING_STRATEGY_MAP.put("KEBAB_CASE", PropertyNamingStrategies.KEBAB_CASE);
-            NAMING_STRATEGY_MAP.put("LOWER_CAMEL_CASE", PropertyNamingStrategies.LOWER_CAMEL_CASE);
-            NAMING_STRATEGY_MAP.put("UPPER_CAMEL_CASE", PropertyNamingStrategies.UPPER_CAMEL_CASE);
-            NAMING_STRATEGY_MAP.put("LOWER_CASE", PropertyNamingStrategies.LOWER_CASE);
-            Properties props = loadProperties();
-            JSON_MAPPER = getJsonMapper(props);
-            JSON_TYPE = JSON_MAPPER.reader().typeFactory().constructType(JJson.class);
-            JSON_READER = JSON_MAPPER.reader().forType(JSON_TYPE);
-            LIST_TYPE_JSON = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, JJson.class);
-            LIST_TYPE_STRING = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, String.class);
-            LIST_TYPE_INTEGER = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, Integer.class);
-            LIST_TYPE_DOUBLE = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, Double.class);
-        } else {
-            JSON_MAPPER = null;
-            JSON_TYPE = null;
-            JSON_READER = null;
-            LIST_TYPE_JSON = null;
-            LIST_TYPE_STRING = null;
-            LIST_TYPE_INTEGER = null;
-            LIST_TYPE_DOUBLE = null;
-            NAMING_STRATEGY_MAP = null;
-
-        }
+        NAMING_STRATEGY_MAP = new HashMap<>();
+        NAMING_STRATEGY_MAP.put("SNAKE_CASE", PropertyNamingStrategies.SNAKE_CASE);
+        NAMING_STRATEGY_MAP.put("KEBAB_CASE", PropertyNamingStrategies.KEBAB_CASE);
+        NAMING_STRATEGY_MAP.put("LOWER_CAMEL_CASE", PropertyNamingStrategies.LOWER_CAMEL_CASE);
+        NAMING_STRATEGY_MAP.put("UPPER_CAMEL_CASE", PropertyNamingStrategies.UPPER_CAMEL_CASE);
+        NAMING_STRATEGY_MAP.put("LOWER_CASE", PropertyNamingStrategies.LOWER_CASE);
+        Properties props = loadProperties();
+        JSON_MAPPER = getJsonMapper(props);
+        JSON_TYPE = JSON_MAPPER.reader().typeFactory().constructType(JJson.class);
+        JSON_READER = JSON_MAPPER.reader().forType(JSON_TYPE);
+        LIST_TYPE_JSON = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, JJson.class);
+        LIST_TYPE_STRING = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, String.class);
+        LIST_TYPE_INTEGER = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, Integer.class);
+        LIST_TYPE_LONG = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, Long.class);
+        LIST_TYPE_DOUBLE = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, Double.class);
+        LIST_TYPE_BIG_DECIMAL = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, java.math.BigDecimal.class);
     }
 
     private static JsonMapper getJsonMapper(Properties props) {

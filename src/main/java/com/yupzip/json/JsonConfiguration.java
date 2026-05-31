@@ -9,13 +9,11 @@ import java.util.Properties;
 
 public class JsonConfiguration {
 
-    public static final JsonParser JSON_PARSER;
     public static final MapType MAP_TYPE;
 
     static {
         Properties props = loadProperties();
         MAP_TYPE = MapType.valueOf(props.getProperty("yupzip.json.map-type", "HASH_MAP"));
-        JSON_PARSER = JsonParser.valueOf(props.getProperty("yupzip.json.parser", "JACKSON"));
     }
 
     private JsonConfiguration() {}
