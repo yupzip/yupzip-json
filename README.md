@@ -6,7 +6,7 @@ A thin, fluent wrapper over [Jackson](https://github.com/FasterXML/jackson) for 
 - **Caller-driven typing** — pick the accessor that matches the value (`string()`, `integer()`, `object()`, `array()`). The library doesn't second-guess you.
 - **Spring-friendly** — works as `@RequestBody Json` and `ResponseEntity<Json>` out of the box.
 # Status
-[![Build Status](https://travis-ci.com/yupzip/yupzip-json.svg?branch=master)](https://travis-ci.com/yupzip/yupzip-json)
+![Build](https://github.com/yupzip/yupzip-json/actions/workflows/build.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/yupzip/yupzip-json/badge.svg?branch=master)](https://coveralls.io/github/yupzip/yupzip-json?branch=master)
 # Prerequisites
 This library requires JDK 21+
