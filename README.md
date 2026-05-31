@@ -145,7 +145,7 @@ Person person = Json.create()
                   .put("name", "John Citizen")
                   .convertTo(Person.class);
 ```
-### 6. Removing
+## 6. Removing
 ```java
 person.remove("id");
 person.remove("dob", "address", "employer");
