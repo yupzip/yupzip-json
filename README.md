@@ -9,8 +9,8 @@ A thin, fluent wrapper over [Jackson](https://github.com/FasterXML/jackson) for 
 ![Build](https://github.com/yupzip/yupzip-json/actions/workflows/build.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/yupzip/yupzip-json/badge.svg?branch=master)](https://coveralls.io/github/yupzip/yupzip-json?branch=master)
 # Prerequisites
-This library requires JDK 21+
-(yupzip-json with JDK 17 support is 2.4.0)
+This library requires JDK 21+  
+(yupzip-json with JDK 17 support is 2.4.0)  
 (yupzip-json with JDK 1.8 support is 1.8.5)
 
 # Getting started
