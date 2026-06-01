@@ -1,5 +1,7 @@
 package com.yupzip.json;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.yupzip.json.jackson.JJson;
 
@@ -63,8 +65,10 @@ public interface Json {
         return JJson.asString(object);
     }
 
+    @JsonAnySetter
     Json put(String key, Object value);
 
+    @JsonAnyGetter
     Map<String, Object> asMap();
 
     Json put(String key, Json value);

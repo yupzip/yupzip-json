@@ -19,12 +19,12 @@ This library requires JDK 21+
 <dependency>
     <groupId>com.yupzip.json</groupId>
     <artifactId>yupzip-json</artifactId>
-    <version>3.1.0</version>
+    <version>3.2.0</version>
 </dependency>
 ```
 ### Gradle
 ```groovy
-implementation group: 'com.yupzip.json', name: 'yupzip-json', version: '3.1.0'
+implementation group: 'com.yupzip.json', name: 'yupzip-json', version: '3.2.0'
 ```
 # Usage
 ## 1. Building
@@ -81,6 +81,22 @@ Three variants per type — choose by what you want on absent/null values:
         | `stringOrThrow(key, ex)` | throws your exception if missing |
 
 The same family exists for `integer`, `longInt`, `decimal`, `bigDecimal`, `bool`, `object`, `date`, `localDate`.
+
+### Path-based access
+Any read accessor accepts a dot-separated path to walk nested objects and arrays. `[N]` indexes into a list. Wrap a key containing a literal `.` in backticks (`` ` ``) to opt out of path parsing:
+```java
+String state = order.string("customer.address.state"); // nested object
+BigDecimal firstPrice = order.bigDecimal("items[0].price"); // array index
+String firstSku = order.string("items[0].sku");
+String dottedKeyValue = order.string("`weird.key.with.dots`"); // literal key
+
+// Works with all variants and presence checks
+String postcode = order.stringOr("customer.address.postCode", "0000");
+String postcode2 = order.stringOrThrow("customer.address.postCode");
+boolean hasStateKey = order.hasKey("customer.address.state");
+```
+Paths apply to **reads only**. `put`, `add`, `append`, and `remove` always operate on top-level keys of the current object.
+
 ## 3. Utility
 Helper methods:
 ```java

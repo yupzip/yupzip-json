@@ -332,6 +332,48 @@ class JJsonTest {
     }
 
     @Test
+    void shouldResolveDotPaths() {
+        Json order = Json.create()
+                .put("id", 1)
+                .put("customer", Json.create()
+                        .put("name", "John")
+                        .put("address", Json.create()
+                                .put("postCode", "2000")
+                                .put("state", "NSW")))
+                .put("items", Arrays.asList(
+                        Json.create().put("sku", "A").put("price", new BigDecimal("9.99")),
+                        Json.create().put("sku", "B").put("price", new BigDecimal("19.99"))))
+                .put("dotted.key", "literal");
+
+        // Nested object access
+        Assertions.assertEquals("John", order.string("customer.name"));
+        Assertions.assertEquals("2000", order.string("customer.address.postCode"));
+        Assertions.assertEquals("NSW", order.string("customer.address.state"));
+        Assertions.assertNotNull(order.object("customer.address"));
+
+        // Array indexing
+        Assertions.assertEquals("A", order.string("items[0].sku"));
+        Assertions.assertEquals(new BigDecimal("19.99"), order.bigDecimal("items[1].price"));
+        Assertions.assertNull(order.string("items[5].sku"));
+
+        // Backtick-quoted literal key containing dots
+        Assertions.assertEquals("literal", order.string("`dotted.key`"));
+
+        // Missing path returns null / default / throws
+        Assertions.assertNull(order.string("customer.address.missing"));
+        Assertions.assertNull(order.string("nope.nope.nope"));
+        Assertions.assertEquals("default", order.stringOr("customer.address.missing", "default"));
+        Assertions.assertThrows(PropertyRequiredException.class,
+                () -> order.stringOrThrow("customer.address.missing"));
+
+        // hasKey / hasValueFor work on paths
+        Assertions.assertTrue(order.hasKey("customer.address.state"));
+        Assertions.assertFalse(order.hasKey("customer.address.missing"));
+        Assertions.assertTrue(order.hasValueFor("customer.name"));
+        Assertions.assertFalse(order.hasValueFor("customer.unknown"));
+    }
+
+    @Test
     void shouldParseDateValues() {
         Json dates = Json.create()
                 .put("zonedDateTime", "2020-01-25T09:00:00+00:00")

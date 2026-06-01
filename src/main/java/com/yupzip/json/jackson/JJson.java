@@ -13,15 +13,8 @@ import tools.jackson.databind.ObjectWriter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoField;
-import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -218,11 +209,11 @@ public class JJson implements Json {
     }
 
     public boolean hasKey(String key) {
-        return this.properties.containsKey(key);
+        return hasPath(key);
     }
 
     public boolean hasValueFor(String key) {
-        return null != this.properties.get(key);
+        return null != resolve(key);
     }
 
     public boolean valueEquals(String key, Object value) {
@@ -257,7 +248,7 @@ public class JJson implements Json {
     }
 
     public <T> T get(String key, Class<T> type) {
-        return JSON_MAPPER.convertValue(properties.get(key), type);
+        return JSON_MAPPER.convertValue(resolve(key), type);
     }
 
     public <T> T convertTo(Class<T> type) {
@@ -269,7 +260,7 @@ public class JJson implements Json {
     }
 
     public Json object(String key) {
-        return JSON_MAPPER.convertValue(properties.get(key), JSON_TYPE);
+        return JSON_MAPPER.convertValue(resolve(key), JSON_TYPE);
     }
 
     public Json objectOr(String key, Json object) {
@@ -278,17 +269,17 @@ public class JJson implements Json {
     }
 
     public Json objectOrThrow(String key) {
-        if (!properties.containsKey(key) || null == properties.get(key)) {
+        if (null == resolve(key)) {
             throw new PropertyRequiredException();
         }
-        return JSON_MAPPER.convertValue(properties.get(key), JSON_TYPE);
+        return JSON_MAPPER.convertValue(resolve(key), JSON_TYPE);
     }
 
     public Json objectOrThrow(String key, RuntimeException e) {
-        if (!properties.containsKey(key) || null == properties.get(key)) {
+        if (null == resolve(key)) {
             throw e;
         }
-        return JSON_MAPPER.convertValue(properties.get(key), JSON_TYPE);
+        return JSON_MAPPER.convertValue(resolve(key), JSON_TYPE);
     }
 
     public Optional<Json> seek(String key) {
@@ -300,7 +291,7 @@ public class JJson implements Json {
     }
 
     public List<Json> array(String key) {
-        return JSON_MAPPER.convertValue(properties.get(key), LIST_TYPE_JSON);
+        return JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_JSON);
     }
 
     public Optional<List<Json>> seekArray(String key) {
@@ -308,7 +299,7 @@ public class JJson implements Json {
     }
 
     public String string(String key) {
-        Object value = properties.get(key);
+        Object value = resolve(key);
         if (value == null) {
             return null;
         }
@@ -317,7 +308,7 @@ public class JJson implements Json {
 
     public String stringOr(String key, String defaultValue) {
         try {
-            if (properties.containsKey(key) && null != properties.get(key)) {
+            if (null != resolve(key)) {
                 return string(key);
             }
         } catch (Exception e) {
@@ -327,21 +318,21 @@ public class JJson implements Json {
     }
 
     public String stringOrThrow(String key) {
-        if (!properties.containsKey(key) || null == properties.get(key)) {
+        if (null == resolve(key)) {
             throw new PropertyRequiredException();
         }
         return string(key);
     }
 
     public String stringOrThrow(String key, RuntimeException e) {
-        if (!properties.containsKey(key) || null == properties.get(key)) {
+        if (null == resolve(key)) {
             throw e;
         }
         return string(key);
     }
 
     public List<String> strings(String key) {
-        return JSON_MAPPER.convertValue(properties.get(key), LIST_TYPE_STRING);
+        return JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_STRING);
     }
 
     public Integer integer(String key) {
@@ -354,7 +345,7 @@ public class JJson implements Json {
 
     public int integerOr(String key, int defaultValue) {
         try {
-            if (properties.containsKey(key) && null != properties.get(key)) {
+            if (null != resolve(key)) {
                 return integer(key);
             }
         } catch (Exception e) {
@@ -364,14 +355,14 @@ public class JJson implements Json {
     }
 
     public Integer integerOrThrow(String key) {
-        if (!properties.containsKey(key) || null == properties.get(key)) {
+        if (null == resolve(key)) {
             throw new PropertyRequiredException();
         }
         return integer(key);
     }
 
     public Integer integerOrThrow(String key, RuntimeException e) {
-        if (!properties.containsKey(key) || null == properties.get(key)) {
+        if (null == resolve(key)) {
             throw e;
         }
         return integer(key);
@@ -379,7 +370,7 @@ public class JJson implements Json {
 
     public List<Integer> integers(String key) {
         try {
-            return JSON_MAPPER.convertValue(properties.get(key), LIST_TYPE_INTEGER);
+            return JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_INTEGER);
         } catch (Exception e) {
             throw new JsonParseException("Error parsing value to integer list for key " + key, e);
         }
@@ -395,7 +386,7 @@ public class JJson implements Json {
 
     public long longOr(String key, long defaultValue) {
         try {
-            if (properties.containsKey(key) && null != properties.get(key)) {
+            if (null != resolve(key)) {
                 return longInt(key);
             }
         } catch (Exception e) {
@@ -405,14 +396,14 @@ public class JJson implements Json {
     }
 
     public Long longOrThrow(String key) {
-        if (!properties.containsKey(key) || null == properties.get(key)) {
+        if (null == resolve(key)) {
             throw new PropertyRequiredException();
         }
         return longInt(key);
     }
 
     public Long longOrThrow(String key, RuntimeException e) {
-        if (!properties.containsKey(key) || null == properties.get(key)) {
+        if (null == resolve(key)) {
             throw e;
         }
         return longInt(key);
@@ -420,7 +411,7 @@ public class JJson implements Json {
 
     public List<Long> longs(String key) {
         try {
-            return JSON_MAPPER.convertValue(properties.get(key), LIST_TYPE_LONG);
+            return JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_LONG);
         } catch (Exception e) {
             throw new JsonParseException("Error parsing value to long list for key " + key, e);
         }
@@ -436,7 +427,7 @@ public class JJson implements Json {
 
     public double decimalOr(String key, double defaultValue) {
         try {
-            if (properties.containsKey(key) && null != properties.get(key)) {
+            if (null != resolve(key)) {
                 return decimal(key);
             }
         } catch (Exception e) {
@@ -446,14 +437,14 @@ public class JJson implements Json {
     }
 
     public Double decimalOrThrow(String key) {
-        if (!properties.containsKey(key) || null == properties.get(key)) {
+        if (null == resolve(key)) {
             throw new PropertyRequiredException();
         }
         return decimal(key);
     }
 
     public Double decimalOrThrow(String key, RuntimeException e) {
-        if (!properties.containsKey(key) || null == properties.get(key)) {
+        if (null == resolve(key)) {
             throw e;
         }
         return decimal(key);
@@ -461,7 +452,7 @@ public class JJson implements Json {
 
     public List<Double> decimals(String key) {
         try {
-            return JSON_MAPPER.convertValue(properties.get(key), LIST_TYPE_DOUBLE);
+            return JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_DOUBLE);
         } catch (Exception e) {
             throw new JsonParseException("Error parsing value to double list for key " + key, e);
         }
@@ -477,7 +468,7 @@ public class JJson implements Json {
 
     public BigDecimal bigDecimalOr(String key, BigDecimal defaultValue) {
         try {
-            if (properties.containsKey(key) && null != properties.get(key)) {
+            if (null != resolve(key)) {
                 return bigDecimal(key);
             }
         } catch (Exception e) {
@@ -487,14 +478,14 @@ public class JJson implements Json {
     }
 
     public BigDecimal bigDecimalOrThrow(String key) {
-        if (!properties.containsKey(key) || null == properties.get(key)) {
+        if (null == resolve(key)) {
             throw new PropertyRequiredException();
         }
         return bigDecimal(key);
     }
 
     public BigDecimal bigDecimalOrThrow(String key, RuntimeException e) {
-        if (!properties.containsKey(key) || null == properties.get(key)) {
+        if (null == resolve(key)) {
             throw e;
         }
         return bigDecimal(key);
@@ -502,7 +493,7 @@ public class JJson implements Json {
 
     public List<BigDecimal> bigDecimals(String key) {
         try {
-            return JSON_MAPPER.convertValue(properties.get(key), LIST_TYPE_BIG_DECIMAL);
+            return JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_BIG_DECIMAL);
         } catch (Exception e) {
             throw new JsonParseException("Error parsing value to big decimal list for key " + key, e);
         }
@@ -518,7 +509,7 @@ public class JJson implements Json {
 
     public boolean boolOr(String key, boolean defaultValue) {
         try {
-            if (properties.containsKey(key) && null != properties.get(key)) {
+            if (null != resolve(key)) {
                 return bool(key);
             }
         } catch (Exception e) {
@@ -528,14 +519,14 @@ public class JJson implements Json {
     }
 
     public Boolean boolOrThrow(String key) {
-        if (!properties.containsKey(key) || null == properties.get(key)) {
+        if (null == resolve(key)) {
             throw new PropertyRequiredException();
         }
         return bool(key);
     }
 
     public Boolean boolOrThrow(String key, RuntimeException e) {
-        if (!properties.containsKey(key) || null == properties.get(key)) {
+        if (null == resolve(key)) {
             throw e;
         }
         return bool(key);
@@ -566,37 +557,37 @@ public class JJson implements Json {
     }
 
     public Date date(String key, String format) {
-        return parseDate(string(key), format, ZoneId.systemDefault());
+        return JsonDateUtil.parseDate(string(key), format, ZoneId.systemDefault());
     }
 
     public Date dateOrNow(String key, String format) {
-        if (properties.containsKey(key) && null != string(key)) {
-            return parseDate(string(key), format, ZoneId.systemDefault());
+        if (null != resolve(key)) {
+            return JsonDateUtil.parseDate(string(key), format, ZoneId.systemDefault());
         }
         return new Date();
     }
 
     public Date dateOrThrow(String key, String format) {
-        if (!properties.containsKey(key) || null == properties.get(key)) {
+        if (null == resolve(key)) {
             throw new PropertyRequiredException();
         }
         return date(key, format);
     }
 
     public Date dateOrThrow(String key, String format, RuntimeException e) {
-        if (!properties.containsKey(key) || null == properties.get(key)) {
+        if (null == resolve(key)) {
             throw e;
         }
         return date(key, format);
     }
 
     public Date date(String key, String format, String timeZone) {
-        return parseDate(string(key), format, ZoneId.of(timeZone));
+        return JsonDateUtil.parseDate(string(key), format, ZoneId.of(timeZone));
     }
 
     public Date date(String dateKey, String timeKey, String joinString, String format) {
         String dateTime = string(dateKey).concat(joinString).concat(string(timeKey));
-        return parseDate(dateTime, format, ZoneId.systemDefault());
+        return JsonDateUtil.parseDate(dateTime, format, ZoneId.systemDefault());
     }
 
     public LocalDate localDate(String key, String format) {
@@ -604,21 +595,21 @@ public class JJson implements Json {
     }
 
     public LocalDate localDateOr(String key, String format, LocalDate defaultValue) {
-        if (!properties.containsKey(key) || null == properties.get(key)) {
+        if (null == resolve(key)) {
             return defaultValue;
         }
         return LocalDate.parse(string(key), DateTimeFormatter.ofPattern(format));
     }
 
     public LocalDate localDateOrToday(String key, String format) {
-        if (!properties.containsKey(key) || null == properties.get(key)) {
+        if (null == resolve(key)) {
             return LocalDate.now();
         }
         return LocalDate.parse(string(key), DateTimeFormatter.ofPattern(format));
     }
 
     public LocalDate localDateOrThrow(String key, String format, RuntimeException e) {
-        if (!properties.containsKey(key) || null == properties.get(key)) {
+        if (null == resolve(key)) {
             throw e;
         }
         return localDate(key, format);
@@ -650,17 +641,17 @@ public class JJson implements Json {
     }
 
     public Json array(String key, Consumer<List<Json>> consumer) {
-        consumer.accept(JSON_MAPPER.convertValue(properties.get(key), LIST_TYPE_JSON));
+        consumer.accept(JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_JSON));
         return this;
     }
 
     public Json strings(String key, Consumer<List<String>> consumer) {
-        consumer.accept(JSON_MAPPER.convertValue(properties.get(key), LIST_TYPE_STRING));
+        consumer.accept(JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_STRING));
         return this;
     }
 
     public Json integers(String key, Consumer<List<Integer>> consumer) {
-        consumer.accept(JSON_MAPPER.convertValue(properties.get(key), LIST_TYPE_INTEGER));
+        consumer.accept(JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_INTEGER));
         return this;
     }
 
@@ -670,12 +661,12 @@ public class JJson implements Json {
     }
 
     public Json longs(String key, Consumer<List<Long>> consumer) {
-        consumer.accept(JSON_MAPPER.convertValue(properties.get(key), LIST_TYPE_LONG));
+        consumer.accept(JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_LONG));
         return this;
     }
 
     public Json decimals(String key, Consumer<List<Double>> consumer) {
-        consumer.accept(JSON_MAPPER.convertValue(properties.get(key), LIST_TYPE_DOUBLE));
+        consumer.accept(JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_DOUBLE));
         return this;
     }
 
@@ -685,7 +676,7 @@ public class JJson implements Json {
     }
 
     public Json bigDecimals(String key, Consumer<List<BigDecimal>> consumer) {
-        consumer.accept(JSON_MAPPER.convertValue(properties.get(key), LIST_TYPE_BIG_DECIMAL));
+        consumer.accept(JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_BIG_DECIMAL));
         return this;
     }
 
@@ -747,50 +738,11 @@ public class JJson implements Json {
         return Objects.hash(properties);
     }
 
-    private static final ConcurrentMap<String, DateTimeFormatter> FORMATTER_CACHE = new ConcurrentHashMap<>();
-
-    private static DateTimeFormatter formatterFor(String pattern) {
-        return FORMATTER_CACHE.computeIfAbsent(pattern, p -> {
-            DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder().appendPattern(p);
-            if (needsAmPmDefault(p)) {
-                builder.parseDefaulting(ChronoField.AMPM_OF_DAY, 0);
-            }
-            return builder.toFormatter();
-        });
+    private Object resolve(String path) {
+        return JsonPathUtil.resolve(properties, path);
     }
 
-    private static boolean needsAmPmDefault(String pattern) {
-        boolean inLiteral = false;
-        boolean hasClockHour = false;
-        boolean hasAmPm = false;
-        for (int i = 0; i < pattern.length(); i++) {
-            char c = pattern.charAt(i);
-            if (c == '\'') {
-                inLiteral = !inLiteral;
-            } else if (!inLiteral) {
-                if (c == 'h' || c == 'K') hasClockHour = true;
-                if (c == 'a' || c == 'B') hasAmPm = true;
-            }
-        }
-        return hasClockHour && !hasAmPm;
-    }
-
-    private static Date parseDate(String dateString, String format, ZoneId fallbackZone) {
-        try {
-            TemporalAccessor ta = formatterFor(format).parseBest(dateString,
-                    ZonedDateTime::from,
-                    OffsetDateTime::from,
-                    LocalDateTime::from,
-                    LocalDate::from);
-            return switch (ta) {
-                case ZonedDateTime zdt -> Date.from(zdt.toInstant());
-                case OffsetDateTime odt -> Date.from(odt.toInstant());
-                case LocalDateTime ldt -> Date.from(ldt.atZone(fallbackZone).toInstant());
-                case LocalDate ld -> Date.from(ld.atStartOfDay(fallbackZone).toInstant());
-                default -> throw new IllegalStateException("Unexpected temporal type: " + ta);
-            };
-        } catch (DateTimeParseException e) {
-            throw new JsonParseException("Error parsing value to date " + dateString, e);
-        }
+    private boolean hasPath(String path) {
+        return JsonPathUtil.hasPath(properties, path);
     }
 }
