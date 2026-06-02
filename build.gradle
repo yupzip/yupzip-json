@@ -1,7 +1,6 @@
 plugins {
 	id 'java'
 	id 'jacoco'
-	id 'com.github.kt3k.coveralls' version '2.12.2'
 }
 
 group = 'com.yupzip.json'
