@@ -19,12 +19,12 @@ This library requires JDK 21+
 <dependency>
     <groupId>com.yupzip.json</groupId>
     <artifactId>yupzip-json</artifactId>
-    <version>3.2.0</version>
+    <version>4.0.0</version>
 </dependency>
 ```
 ### Gradle
 ```groovy
-implementation group: 'com.yupzip.json', name: 'yupzip-json', version: '3.2.0'
+implementation group: 'com.yupzip.json', name: 'yupzip-json', version: '4.0.0'
 ```
 # Usage
 ## 1. Building

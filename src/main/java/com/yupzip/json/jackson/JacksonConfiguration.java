@@ -3,20 +3,16 @@ package com.yupzip.json.jackson;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import tools.jackson.databind.DeserializationFeature;
-import tools.jackson.databind.JavaType;
 import tools.jackson.databind.MapperFeature;
-import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.PropertyNamingStrategy;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.databind.type.CollectionType;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -28,38 +24,40 @@ import static tools.jackson.databind.cfg.DateTimeFeature.WRITE_DATES_AS_TIMESTAM
 
 public class JacksonConfiguration {
 
-    static final JsonMapper JSON_MAPPER;
-    static final JavaType JSON_TYPE;
-    static final ObjectReader JSON_READER;
-    static final CollectionType LIST_TYPE_JSON;
-    static final CollectionType LIST_TYPE_STRING;
-    static final CollectionType LIST_TYPE_INTEGER;
-    static final CollectionType LIST_TYPE_LONG;
-    static final CollectionType LIST_TYPE_DOUBLE;
-    static final CollectionType LIST_TYPE_BIG_DECIMAL;
-
-    static final Map<String, PropertyNamingStrategy> NAMING_STRATEGY_MAP;
+    private static final Map<String, PropertyNamingStrategy> NAMING_STRATEGY_MAP = new HashMap<>();
 
     static {
-        NAMING_STRATEGY_MAP = new HashMap<>();
         NAMING_STRATEGY_MAP.put("SNAKE_CASE", PropertyNamingStrategies.SNAKE_CASE);
         NAMING_STRATEGY_MAP.put("KEBAB_CASE", PropertyNamingStrategies.KEBAB_CASE);
         NAMING_STRATEGY_MAP.put("LOWER_CAMEL_CASE", PropertyNamingStrategies.LOWER_CAMEL_CASE);
         NAMING_STRATEGY_MAP.put("UPPER_CAMEL_CASE", PropertyNamingStrategies.UPPER_CAMEL_CASE);
         NAMING_STRATEGY_MAP.put("LOWER_CASE", PropertyNamingStrategies.LOWER_CASE);
-        Properties props = loadProperties();
-        JSON_MAPPER = getJsonMapper(props);
-        JSON_TYPE = JSON_MAPPER.reader().typeFactory().constructType(JJson.class);
-        JSON_READER = JSON_MAPPER.reader().forType(JSON_TYPE);
-        LIST_TYPE_JSON = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, JJson.class);
-        LIST_TYPE_STRING = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, String.class);
-        LIST_TYPE_INTEGER = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, Integer.class);
-        LIST_TYPE_LONG = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, Long.class);
-        LIST_TYPE_DOUBLE = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, Double.class);
-        LIST_TYPE_BIG_DECIMAL = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, java.math.BigDecimal.class);
     }
 
-    private static JsonMapper getJsonMapper(Properties props) {
+    private JacksonConfiguration() {}
+
+    /**
+     * Builds the default {@link JsonMapper} from {@code application.properties}.
+     * Used by {@link JsonMappers} for standalone (non-Spring) initialization, and available for
+     * callers who want to start from yupzip's defaults before further customization.
+     */
+    public static JsonMapper buildDefaultMapper() {
+        return buildMapper(loadProperties());
+    }
+
+    static Properties loadProperties() {
+        Properties props = new Properties();
+        try (InputStream inputStream = JacksonConfiguration.class.getClassLoader().getResourceAsStream("application.properties")) {
+            if (null != inputStream) {
+                props.load(inputStream);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return props;
+    }
+
+    private static JsonMapper buildMapper(Properties props) {
         JsonMapper.Builder jsonMapperBuilder = JsonMapper.builder()
                 .configure(FAIL_ON_EMPTY_BEANS, parseBoolean(props.getProperty("jackson.serialization.fail-on-empty-beans", "false")))
                 .configure(WRITE_DATES_AS_TIMESTAMPS, parseBoolean(props.getProperty("jackson.serialization.write-dates-as-timestamps", "false")))
@@ -74,21 +72,6 @@ public class JacksonConfiguration {
         disableFeatures(jsonMapperBuilder, props);
         configureVisibility(jsonMapperBuilder, props);
         return jsonMapperBuilder.build();
-    }
-
-    private JacksonConfiguration() {}
-
-
-    static Properties loadProperties() {
-        Properties props = new Properties();
-        try (InputStream inputStream = JacksonConfiguration.class.getClassLoader().getResourceAsStream("application.properties")) {
-            if (null != inputStream) {
-                props.load(inputStream);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return props;
     }
 
     private static void setPropertyNamingStrategy(JsonMapper.Builder jsonMapperBuilder, Properties props) {
@@ -121,8 +104,8 @@ public class JacksonConfiguration {
     }
 
     private static void enableFeatures(JsonMapper.Builder jsonMapperBuilder, Properties props) {
-        String[] disabledFeatures = props.getProperty("jackson.enabled-features", "").split(",");
-        Arrays.stream(disabledFeatures).forEach(feature -> {
+        String[] enabledFeatures = props.getProperty("jackson.enabled-features", "").split(",");
+        Arrays.stream(enabledFeatures).forEach(feature -> {
             seekDeserializationFeature(feature).ifPresent(jsonMapperBuilder::enable);
             seekSerializationFeature(feature).ifPresent(jsonMapperBuilder::enable);
             seekMapperFeature(feature).ifPresent(jsonMapperBuilder::enable);

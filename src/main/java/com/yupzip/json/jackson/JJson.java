@@ -9,7 +9,6 @@ import com.yupzip.json.Json;
 import com.yupzip.json.JsonParseException;
 import com.yupzip.json.PropertyRequiredException;
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectWriter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -29,29 +28,15 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static com.yupzip.json.JsonConfiguration.MAP_TYPE;
-import static com.yupzip.json.jackson.JacksonConfiguration.JSON_READER;
-import static com.yupzip.json.jackson.JacksonConfiguration.JSON_TYPE;
-import static com.yupzip.json.jackson.JacksonConfiguration.LIST_TYPE_DOUBLE;
-import static com.yupzip.json.jackson.JacksonConfiguration.LIST_TYPE_INTEGER;
-import static com.yupzip.json.jackson.JacksonConfiguration.LIST_TYPE_BIG_DECIMAL;
-import static com.yupzip.json.jackson.JacksonConfiguration.LIST_TYPE_LONG;
-import static com.yupzip.json.jackson.JacksonConfiguration.LIST_TYPE_JSON;
-import static com.yupzip.json.jackson.JacksonConfiguration.LIST_TYPE_STRING;
-import static com.yupzip.json.jackson.JacksonConfiguration.JSON_MAPPER;
 
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, isGetterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public class JJson implements Json {
 
     @JsonIgnore
-    private final ObjectWriter objectWriter;
-
-    @JsonIgnore
     private final Map<String, Object> properties;
-
 
     private JJson() {
         this.properties = MAP_TYPE.createMap();
-        this.objectWriter = JSON_MAPPER.writer();
     }
 
     public static Json create() {
@@ -59,12 +44,12 @@ public class JJson implements Json {
     }
 
     public static Optional<Json> from(Object object) {
-        return Optional.ofNullable(JSON_MAPPER.convertValue(object, JSON_TYPE));
+        return Optional.ofNullable(JsonMappers.current().convertValue(object, JsonMappers.jsonType()));
     }
 
     public static Json parse(Object object) {
         try {
-            return JSON_MAPPER.convertValue(object, JSON_TYPE);
+            return JsonMappers.current().convertValue(object, JsonMappers.jsonType());
         } catch (Exception e) {
             throw new JsonParseException("Error parsing object ", e);
         }
@@ -72,7 +57,7 @@ public class JJson implements Json {
 
     public static Json parse(String jsonString) {
         try {
-            return JSON_READER.readValue(jsonString);
+            return JsonMappers.jsonReader().readValue(jsonString);
         } catch (Exception e) {
             throw new JsonParseException("Error parsing JSON string ", e);
         }
@@ -80,7 +65,7 @@ public class JJson implements Json {
 
     public static Json parse(byte[] jsonData) {
         try {
-            return JSON_READER.readValue(jsonData);
+            return JsonMappers.jsonReader().readValue(jsonData);
         } catch (Exception e) {
             throw new JsonParseException("Error parsing JSON string ", e);
         }
@@ -88,7 +73,7 @@ public class JJson implements Json {
 
     public static <T> T parseAs(String jsonString, Class<T> clazz) {
         try {
-            return JSON_MAPPER.readValue(jsonString, clazz);
+            return JsonMappers.current().readValue(jsonString, clazz);
         } catch (Exception e) {
             throw new JsonParseException("Error parsing JSON string ", e);
         }
@@ -96,7 +81,7 @@ public class JJson implements Json {
 
     public static <T> T parseAs(byte[] jsonData, Class<T> clazz) {
         try {
-            return JSON_MAPPER.readValue(jsonData, clazz);
+            return JsonMappers.current().readValue(jsonData, clazz);
         } catch (Exception e) {
             throw new JsonParseException("Error parsing JSON byte array ", e);
         }
@@ -104,7 +89,7 @@ public class JJson implements Json {
 
     public static List<Json> array(Object object) {
         try {
-            return JSON_MAPPER.convertValue(object, LIST_TYPE_JSON);
+            return JsonMappers.current().convertValue(object, JsonMappers.listTypeJson());
         } catch (Exception e) {
             throw new JsonParseException("Error parsing JSON array ", e);
         }
@@ -112,7 +97,7 @@ public class JJson implements Json {
 
     public static String asString(Object object) {
         try {
-            return JSON_MAPPER.writer().writeValueAsString(object);
+            return JsonMappers.current().writer().writeValueAsString(object);
         } catch (JacksonException e) {
             throw new JsonParseException(e);
         }
@@ -248,19 +233,19 @@ public class JJson implements Json {
     }
 
     public <T> T get(String key, Class<T> type) {
-        return JSON_MAPPER.convertValue(resolve(key), type);
+        return JsonMappers.current().convertValue(resolve(key), type);
     }
 
     public <T> T convertTo(Class<T> type) {
         try {
-            return JSON_MAPPER.convertValue(this, type);
+            return JsonMappers.current().convertValue(this, type);
         } catch (Exception e) {
             throw new JsonParseException(e);
         }
     }
 
     public Json object(String key) {
-        return JSON_MAPPER.convertValue(resolve(key), JSON_TYPE);
+        return JsonMappers.current().convertValue(resolve(key), JsonMappers.jsonType());
     }
 
     public Json objectOr(String key, Json object) {
@@ -272,14 +257,14 @@ public class JJson implements Json {
         if (null == resolve(key)) {
             throw new PropertyRequiredException();
         }
-        return JSON_MAPPER.convertValue(resolve(key), JSON_TYPE);
+        return JsonMappers.current().convertValue(resolve(key), JsonMappers.jsonType());
     }
 
     public Json objectOrThrow(String key, RuntimeException e) {
         if (null == resolve(key)) {
             throw e;
         }
-        return JSON_MAPPER.convertValue(resolve(key), JSON_TYPE);
+        return JsonMappers.current().convertValue(resolve(key), JsonMappers.jsonType());
     }
 
     public Optional<Json> seek(String key) {
@@ -291,7 +276,7 @@ public class JJson implements Json {
     }
 
     public List<Json> array(String key) {
-        return JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_JSON);
+        return JsonMappers.current().convertValue(resolve(key), JsonMappers.listTypeJson());
     }
 
     public Optional<List<Json>> seekArray(String key) {
@@ -332,7 +317,7 @@ public class JJson implements Json {
     }
 
     public List<String> strings(String key) {
-        return JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_STRING);
+        return JsonMappers.current().convertValue(resolve(key), JsonMappers.listTypeString());
     }
 
     public Integer integer(String key) {
@@ -370,7 +355,7 @@ public class JJson implements Json {
 
     public List<Integer> integers(String key) {
         try {
-            return JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_INTEGER);
+            return JsonMappers.current().convertValue(resolve(key), JsonMappers.listTypeInteger());
         } catch (Exception e) {
             throw new JsonParseException("Error parsing value to integer list for key " + key, e);
         }
@@ -411,7 +396,7 @@ public class JJson implements Json {
 
     public List<Long> longs(String key) {
         try {
-            return JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_LONG);
+            return JsonMappers.current().convertValue(resolve(key), JsonMappers.listTypeLong());
         } catch (Exception e) {
             throw new JsonParseException("Error parsing value to long list for key " + key, e);
         }
@@ -452,7 +437,7 @@ public class JJson implements Json {
 
     public List<Double> decimals(String key) {
         try {
-            return JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_DOUBLE);
+            return JsonMappers.current().convertValue(resolve(key), JsonMappers.listTypeDouble());
         } catch (Exception e) {
             throw new JsonParseException("Error parsing value to double list for key " + key, e);
         }
@@ -493,7 +478,7 @@ public class JJson implements Json {
 
     public List<BigDecimal> bigDecimals(String key) {
         try {
-            return JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_BIG_DECIMAL);
+            return JsonMappers.current().convertValue(resolve(key), JsonMappers.listTypeBigDecimal());
         } catch (Exception e) {
             throw new JsonParseException("Error parsing value to big decimal list for key " + key, e);
         }
@@ -641,17 +626,17 @@ public class JJson implements Json {
     }
 
     public Json array(String key, Consumer<List<Json>> consumer) {
-        consumer.accept(JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_JSON));
+        consumer.accept(JsonMappers.current().convertValue(resolve(key), JsonMappers.listTypeJson()));
         return this;
     }
 
     public Json strings(String key, Consumer<List<String>> consumer) {
-        consumer.accept(JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_STRING));
+        consumer.accept(JsonMappers.current().convertValue(resolve(key), JsonMappers.listTypeString()));
         return this;
     }
 
     public Json integers(String key, Consumer<List<Integer>> consumer) {
-        consumer.accept(JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_INTEGER));
+        consumer.accept(JsonMappers.current().convertValue(resolve(key), JsonMappers.listTypeInteger()));
         return this;
     }
 
@@ -661,12 +646,12 @@ public class JJson implements Json {
     }
 
     public Json longs(String key, Consumer<List<Long>> consumer) {
-        consumer.accept(JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_LONG));
+        consumer.accept(JsonMappers.current().convertValue(resolve(key), JsonMappers.listTypeLong()));
         return this;
     }
 
     public Json decimals(String key, Consumer<List<Double>> consumer) {
-        consumer.accept(JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_DOUBLE));
+        consumer.accept(JsonMappers.current().convertValue(resolve(key), JsonMappers.listTypeDouble()));
         return this;
     }
 
@@ -676,7 +661,7 @@ public class JJson implements Json {
     }
 
     public Json bigDecimals(String key, Consumer<List<BigDecimal>> consumer) {
-        consumer.accept(JSON_MAPPER.convertValue(resolve(key), LIST_TYPE_BIG_DECIMAL));
+        consumer.accept(JsonMappers.current().convertValue(resolve(key), JsonMappers.listTypeBigDecimal()));
         return this;
     }
 
@@ -715,7 +700,7 @@ public class JJson implements Json {
     @Override
     public String toString() {
         try {
-            return objectWriter.writeValueAsString(this);
+            return JsonMappers.current().writer().writeValueAsString(this);
         } catch (JacksonException e) {
             throw new JsonParseException(e);
         }
