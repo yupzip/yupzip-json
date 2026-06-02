@@ -410,8 +410,42 @@ class JJsonTest {
         Assertions.assertThrows(JsonParseException.class, () -> person.decimal("verified"));
         Assertions.assertThrows(JsonParseException.class, () -> person.decimals("sports"));
         Assertions.assertThrows(JsonParseException.class, () -> person.bool("weight"));
+        Assertions.assertThrows(JsonParseException.class, () -> person.longInt("name"));
+        Assertions.assertThrows(JsonParseException.class, () -> person.longs("sports"));
+        Assertions.assertThrows(JsonParseException.class, () -> person.bigDecimal("name"));
+        Assertions.assertThrows(JsonParseException.class, () -> person.bigDecimals("sports"));
         Assertions.assertThrows(JsonParseException.class, () -> Json.array(new Person()));
         Assertions.assertThrows(JsonParseException.class, () -> person.convertTo(JsonNodeCreator.class));
+        Assertions.assertThrows(JsonParseException.class, () -> Json.parse(new byte[] { '{', '"', 'a', '"' }));
+        Assertions.assertThrows(JsonParseException.class, () -> Json.parseAs(new byte[] { '{', '"', 'a', '"' }, Person.class));
+        Assertions.assertThrows(JsonParseException.class, () -> Json.parseAs("{not-json", Person.class));
+    }
+
+    @Test
+    void shouldImplementEqualsAndHashCode() {
+        Json a = Json.create().put("id", 1).put("name", "John");
+        Json b = Json.create().put("id", 1).put("name", "John");
+        Json c = Json.create().put("id", 2).put("name", "Jane");
+
+        Assertions.assertEquals(a, b);
+        Assertions.assertEquals(a.hashCode(), b.hashCode());
+        Assertions.assertNotEquals(a, c);
+        Assertions.assertNotEquals(a, null);
+        Assertions.assertNotEquals(a, "not a json");
+        Assertions.assertEquals(a, a);
+    }
+
+    @Test
+    void shouldDetectArrayIndexWithHasKey() {
+        Json order = Json.create()
+                .put("items", Arrays.asList(
+                        Json.create().put("sku", "A"),
+                        Json.create().put("sku", "B")));
+
+        Assertions.assertTrue(order.hasKey("items[0]"));
+        Assertions.assertTrue(order.hasKey("items[1].sku"));
+        Assertions.assertFalse(order.hasKey("items[5]"));
+        Assertions.assertFalse(order.hasKey("items[abc]"));
     }
 
     @Test
