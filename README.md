@@ -1,5 +1,65 @@
 # Overview
 A thin, fluent wrapper over [Jackson](https://github.com/FasterXML/jackson) for building, reading, and mapping JSON with the minimum amount of code.
+
+## Clean, fluent code — same Jackson
+
+Three everyday tasks, side by side:
+
+### Map an array to a list
+**Jackson:**
+```java
+List<String> names = new ArrayList<>();
+JsonNode arr = mapper.readTree(json).get("employees");
+if (arr != null && arr.isArray()) {
+    for (JsonNode emp : arr) {
+        if (emp.has("name")) {
+            names.add(emp.get("name").asText());
+        }
+    }
+}
+```
+**yupzip-json:**
+```java
+List<String> names = Json.parse(json)
+        .stream("employees")
+        .map(e -> e.string("name"))
+        .toList();
+```
+
+### Build a JSON object
+**Jackson:**
+```java
+ObjectNode root = mapper.createObjectNode();
+root.put("id", 1);
+root.put("name", "John");
+ObjectNode address = mapper.createObjectNode();
+address.put("city", "Sydney");
+address.put("state", "NSW");
+root.set("address", address);
+String json = mapper.writeValueAsString(root);
+```
+**yupzip-json:**
+```java
+String json = Json.create()
+        .put("id", 1)
+        .put("name", "John")
+        .put("address", Json.create()
+                .put("city", "Sydney")
+                .put("state", "NSW"))
+        .toString();
+```
+
+### Read a nested value
+**Jackson:**
+```java
+String state = mapper.readTree(json)
+        .path("customer").path("address").path("state").asText();
+```
+**yupzip-json:**
+```java
+String state = Json.parse(json).string("customer.address.state");
+```
+
 ## Why yupzip-json?
 - **No annotations on your POJOs** — `Json` is a `Map`-backed value, not a code-generated class.
 - **Fluent everywhere** — build, read, and map JSON in single expressions.
@@ -189,6 +249,24 @@ public List<Product> getProducts(String url) {
 ```
 
 # Configuration
+### Using yupzip with Spring Boot
+On Spring Boot 4.0+, add the [`spring-boot-starter-yupzip-json`](https://github.com/yupzip/spring-boot-starter-yupzip-json) dependency and yupzip-json will share Spring's `JsonMapper` bean automatically — every `Json.parse(...)`, `convertTo(...)`, and `toString()` call uses the same mapper as the rest of your application, configured by `spring.jackson.*`. Zero code changes required.
+
+**Maven:**
+```xml
+<dependency>
+    <groupId>com.yupzip.json</groupId>
+    <artifactId>spring-boot-starter-yupzip-json</artifactId>
+    <version>1.0.1</version>
+</dependency>
+```
+**Gradle:**
+```groovy
+implementation 'com.yupzip.json:spring-boot-starter-yupzip-json:1.0.1'
+```
+
+For Spring Boot 3.x or manual setup, see the [starter README](https://github.com/yupzip/spring-boot-starter-yupzip-json#readme).
+
 ### Jackson serialization/deserialization
 Configuration via application.properties:
 ```properties
