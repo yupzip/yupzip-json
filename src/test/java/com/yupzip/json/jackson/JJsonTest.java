@@ -60,13 +60,13 @@ class JJsonTest {
         Stream<Json> dataStream = payload.stream("data");
         Optional<Json> optionalData = dataStream.findFirst();
         Assertions.assertTrue(optionalData.isPresent());
-        Assertions.assertEquals(optionalData.get(), dataList.getFirst());
+        Assertions.assertEquals(optionalData.get(), dataList.get(0));
 
         Json[] dataArray = payload.get("data", JJson[].class);
         Assertions.assertNotNull(dataArray);
         Assertions.assertEquals(1, dataArray.length);
 
-        Json data = dataList.getFirst();
+        Json data = dataList.get(0);
         Assertions.assertEquals("articles", data.string("type"));
         Assertions.assertEquals("1", data.string("id"));
 
@@ -320,7 +320,7 @@ class JJsonTest {
 
         List<BigDecimal> prices = payload.bigDecimals("prices");
         Assertions.assertEquals(3, prices.size());
-        Assertions.assertEquals(new BigDecimal("1.10"), prices.getFirst());
+        Assertions.assertEquals(new BigDecimal("1.10"), prices.get(0));
 
         BigDecimal[] consumed = new BigDecimal[1];
         payload.bigDecimal("price", v -> consumed[0] = v);
@@ -453,7 +453,7 @@ class JJsonTest {
         URL url = JJsonTest.class.getClassLoader().getResource(MOCK_JSON_RESOURCE);
         Json payload = JSON_PARSER.readValue(Objects.requireNonNull(url).openStream(), JJson.class);
 
-        Json data = payload.array("data").getFirst();
+        Json data = payload.array("data").get(0);
         Assertions.assertEquals("1", data.stringOr("id", "2"));
         Assertions.assertEquals("2", data.stringOr("missingId", "2"));
 
@@ -477,7 +477,7 @@ class JJsonTest {
         Assertions.assertTrue(payload.seekArray("data").isPresent());
         Assertions.assertFalse(payload.seekArray("missingData").isPresent());
 
-        Json data = payload.array("data").getFirst();
+        Json data = payload.array("data").get(0);
         Assertions.assertTrue(data.seek("attributes").isPresent());
         Assertions.assertFalse(data.seek("missingAttributes").isPresent());
     }

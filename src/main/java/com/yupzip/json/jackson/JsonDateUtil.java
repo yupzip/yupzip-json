@@ -29,13 +29,19 @@ final class JsonDateUtil {
                     OffsetDateTime::from,
                     LocalDateTime::from,
                     LocalDate::from);
-            return switch (ta) {
-                case ZonedDateTime zdt -> Date.from(zdt.toInstant());
-                case OffsetDateTime odt -> Date.from(odt.toInstant());
-                case LocalDateTime ldt -> Date.from(ldt.atZone(fallbackZone).toInstant());
-                case LocalDate ld -> Date.from(ld.atStartOfDay(fallbackZone).toInstant());
-                default -> throw new IllegalStateException("Unexpected temporal type: " + ta);
-            };
+            if (ta instanceof ZonedDateTime zdt) {
+                return Date.from(zdt.toInstant());
+            }
+            if (ta instanceof OffsetDateTime odt) {
+                return Date.from(odt.toInstant());
+            }
+            if (ta instanceof LocalDateTime ldt) {
+                return Date.from(ldt.atZone(fallbackZone).toInstant());
+            }
+            if (ta instanceof LocalDate ld) {
+                return Date.from(ld.atStartOfDay(fallbackZone).toInstant());
+            }
+            throw new IllegalStateException("Unexpected temporal type: " + ta);
         } catch (DateTimeParseException e) {
             throw new JsonParseException("Error parsing value to date " + dateString, e);
         }

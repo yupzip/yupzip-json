@@ -69,8 +69,7 @@ String state = Json.parse(json).string("customer.address.state");
 ![Build](https://github.com/yupzip/yupzip-json/actions/workflows/build.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/yupzip/yupzip-json/badge.svg?branch=master)](https://coveralls.io/github/yupzip/yupzip-json?branch=master)
 # Prerequisites
-This library requires JDK 21+  
-(yupzip-json with JDK 17 support is 2.4.0)  
+This library requires JDK 17+  
 (yupzip-json with JDK 1.8 support is 1.8.5)
 
 # Getting started
@@ -79,12 +78,12 @@ This library requires JDK 21+
 <dependency>
     <groupId>com.yupzip.json</groupId>
     <artifactId>yupzip-json</artifactId>
-    <version>4.0.0</version>
+    <version>4.1.0</version>
 </dependency>
 ```
 ### Gradle
 ```groovy
-implementation group: 'com.yupzip.json', name: 'yupzip-json', version: '4.0.0'
+implementation group: 'com.yupzip.json', name: 'yupzip-json', version: '4.1.0'
 ```
 # Usage
 ## 1. Building
@@ -257,12 +256,12 @@ On Spring Boot 4.0+, add the [`spring-boot-starter-yupzip-json`](https://github.
 <dependency>
     <groupId>com.yupzip.json</groupId>
     <artifactId>spring-boot-starter-yupzip-json</artifactId>
-    <version>1.0.1</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 **Gradle:**
 ```groovy
-implementation 'com.yupzip.json:spring-boot-starter-yupzip-json:1.0.1'
+implementation 'com.yupzip.json:spring-boot-starter-yupzip-json:1.1.0'
 ```
 
 For Spring Boot 3.x or manual setup, see the [starter README](https://github.com/yupzip/spring-boot-starter-yupzip-json#readme).

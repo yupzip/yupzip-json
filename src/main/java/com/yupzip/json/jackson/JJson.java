@@ -682,7 +682,7 @@ public class JJson implements Json {
                 if (null != value) {
                     return value;
                 }
-            } else if (entry.getValue() instanceof List && !((List<?>) entry.getValue()).isEmpty() && ((List<?>) entry.getValue()).getFirst() instanceof Map) {
+            } else if (entry.getValue() instanceof List && !((List<?>) entry.getValue()).isEmpty() && ((List<?>) entry.getValue()).get(0) instanceof Map) {
                 T value = ((List<Map<String, Object>>) entry.getValue())
                         .stream()
                         .map(map -> JJson.create().put(map).find(key, type))
