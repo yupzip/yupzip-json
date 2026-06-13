@@ -1,7 +1,7 @@
 # Overview
 A thin, fluent wrapper over [Jackson](https://github.com/FasterXML/jackson) for building, reading, and mapping JSON with the minimum amount of code.
 
-## Clean, fluent code — same Jackson
+## Clean, fluent code, same Jackson
 
 Three everyday tasks, side by side:
 
@@ -61,10 +61,10 @@ String state = Json.parse(json).string("customer.address.state");
 ```
 
 ## Why yupzip-json?
-- **No annotations on your POJOs** — `Json` is a `Map`-backed value, not a code-generated class.
-- **Fluent everywhere** — build, read, and map JSON in single expressions.
-- **Caller-driven typing** — pick the accessor that matches the value (`string()`, `integer()`, `object()`, `array()`). The library doesn't second-guess you.
-- **Spring-friendly** — works as `@RequestBody Json` and `ResponseEntity<Json>` out of the box.
+- **No annotations on your POJOs.** `Json` is a `Map`-backed value, not a code-generated class.
+- **Fluent everywhere.** Build, read, and map JSON in single expressions.
+- **Caller-driven typing.** Pick the accessor that matches the value (`string()`, `integer()`, `object()`, `array()`). The library doesn't second-guess you.
+- **Spring-friendly.** Works as `@RequestBody Json` and `ResponseEntity<Json>` out of the box.
 # Status
 ![Build](https://github.com/yupzip/yupzip-json/actions/workflows/build.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/yupzip/yupzip-json/badge.svg?branch=master)](https://coveralls.io/github/yupzip/yupzip-json?branch=master)
@@ -78,12 +78,12 @@ This library requires JDK 17+
 <dependency>
     <groupId>com.yupzip.json</groupId>
     <artifactId>yupzip-json</artifactId>
-    <version>4.1.0</version>
+    <version>4.2.0</version>
 </dependency>
 ```
 ### Gradle
 ```groovy
-implementation group: 'com.yupzip.json', name: 'yupzip-json', version: '4.1.0'
+implementation group: 'com.yupzip.json', name: 'yupzip-json', version: '4.2.0'
 ```
 # Usage
 ## 1. Building
@@ -103,6 +103,14 @@ Json person = Json.create()
                         .put("country", "Australia"))
                 .put("dob", "1990-01-01");
 ```
+
+For small objects, `Json.of(...)` is a concise shorthand. Pass alternating string keys and values:
+```java
+Json user = Json.of("id", 10, "username", "test.user", "verified", true);
+Json person = Json.of("id", 1, "address", Json.of("city", "Sydney", "state", "NSW"));
+```
+Odd argument counts and non-string keys fail fast with `IllegalArgumentException`.
+
 ## 2. Reading
 ```java
 Json person = Json.create();
@@ -130,7 +138,7 @@ List<String> employeeNames = Json.parse(company)
                       .map(employee -> employee.string("fullName"))
                       .collect(Collectors.toList());
 ```
-Three variants per type — choose by what you want on absent/null values:
+Three variants per type. Choose by what you want on absent/null values:
 
         | Variant | Behavior |
         |---|---|
@@ -247,9 +255,28 @@ public List<Product> getProducts(String url) {
 }
 ```
 
+# How it compares
+
+yupzip-json sits in a specific niche. Here's how it lines up against the obvious alternatives.
+
+### POJO + Jackson
+When you own the data model and the schema is stable, POJOs give you type-checked code end to end, IDE support, and lossless round-tripping. For domain objects in your service, this is the right tool. The library is not trying to replace this workflow.
+
+### JsonPath
+When you query nested values out of an existing payload using rich expressions (filters, wildcards, recursive descent, slicing), JsonPath's query syntax is more expressive than yupzip's simple dot-and-bracket paths. If your code mostly extracts data from documents you've already received, JsonPath is the right tool.
+
+### yupzip-json
+When JSON is the *working format* through a layer:
+- Forwarding webhooks where you touch a few fields and pass them on.
+- Integration code where the upstream schema is third-party and unstable.
+- Building dynamic JSON responses where the shape depends on the request.
+- Adapter code that takes JSON in, mutates a few keys, and returns JSON out.
+
+For the fraction of code where the program does not deeply inspect the JSON, the typed-accessor and fluent-builder style cuts more boilerplate than POJOs save.
+
 # Configuration
 ### Using yupzip with Spring Boot
-On Spring Boot 4.0+, add the [`spring-boot-starter-yupzip-json`](https://github.com/yupzip/spring-boot-starter-yupzip-json) dependency and yupzip-json will share Spring's `JsonMapper` bean automatically — every `Json.parse(...)`, `convertTo(...)`, and `toString()` call uses the same mapper as the rest of your application, configured by `spring.jackson.*`. Zero code changes required.
+On Spring Boot 4.0+, add the [`spring-boot-starter-yupzip-json`](https://github.com/yupzip/spring-boot-starter-yupzip-json) dependency and yupzip-json will share Spring's `JsonMapper` bean automatically. Every `Json.parse(...)`, `convertTo(...)`, and `toString()` call uses the same mapper as the rest of your application, configured by `spring.jackson.*`. Zero code changes required.
 
 **Maven:**
 ```xml

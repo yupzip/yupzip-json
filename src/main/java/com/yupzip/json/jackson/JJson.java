@@ -43,6 +43,31 @@ public class JJson implements Json {
         return new JJson();
     }
 
+    public static Json of(Object... keyValuePairs) {
+        JJson json = new JJson();
+        if (keyValuePairs == null || keyValuePairs.length == 0) {
+            return json;
+        }
+        if (keyValuePairs.length % 2 != 0) {
+            throw new IllegalArgumentException(
+                    "Json.of requires an even number of arguments (key-value pairs); got " + keyValuePairs.length);
+        }
+        for (int i = 0; i < keyValuePairs.length; i += 2) {
+            Object keyObj = keyValuePairs[i];
+            if (!(keyObj instanceof String key)) {
+                throw new IllegalArgumentException(
+                        "Json.of keys must be non-null strings; got " + (keyObj == null ? "null" : keyObj.getClass().getName()) + " at index " + i);
+            }
+            Object value = keyValuePairs[i + 1];
+            if (value instanceof Json nested) {
+                json.put(key, nested);
+            } else {
+                json.put(key, value);
+            }
+        }
+        return json;
+    }
+
     public static Optional<Json> from(Object object) {
         return Optional.ofNullable(JsonMappers.current().convertValue(object, JsonMappers.jsonType()));
     }

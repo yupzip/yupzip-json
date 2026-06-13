@@ -243,6 +243,54 @@ class JJsonTest {
     }
 
     @Test
+    void shouldCreateJsonViaFactoryOf() {
+        Json person = Json.of("id", 1, "name", "John", "verified", true);
+
+        Assertions.assertEquals(1, person.integer("id"));
+        Assertions.assertEquals("John", person.string("name"));
+        Assertions.assertTrue(person.bool("verified"));
+    }
+
+    @Test
+    void shouldCreateEmptyJsonWhenNoArgumentsPassedToOf() {
+        Assertions.assertTrue(Json.of().isEmpty());
+        Assertions.assertTrue(Json.of((Object[]) null).isEmpty());
+    }
+
+    @Test
+    void shouldStoreNullValuesViaOf() {
+        Json json = Json.of("id", 1, "name", null);
+
+        Assertions.assertEquals(1, json.integer("id"));
+        Assertions.assertNull(json.string("name"));
+        Assertions.assertTrue(json.hasKey("name"));
+    }
+
+    @Test
+    void shouldStoreNestedJsonViaOf() {
+        Json person = Json.of(
+                "id", 1,
+                "address", Json.of("city", "Sydney", "state", "NSW"));
+
+        Assertions.assertEquals("Sydney", person.string("address.city"));
+        Assertions.assertEquals("NSW", person.object("address").string("state"));
+    }
+
+    @Test
+    void shouldThrowOnOddArgumentCountInOf() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> Json.of("id", 1, "name"));
+    }
+
+    @Test
+    void shouldThrowOnNonStringKeyInOf() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> Json.of(1, "value"));
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> Json.of("id", 1, null, "value"));
+    }
+
+    @Test
     void shouldParseValues() {
         Json person = Json.create()
                 .put("id", 1)

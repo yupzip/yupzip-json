@@ -21,6 +21,17 @@ public interface Json {
         return JJson.create();
     }
 
+    /**
+     * Concise factory for small JSON objects. Pass alternating string keys and values.
+     *
+     * <p>Example: {@code Json.of("id", 1, "name", "John", "verified", true)}.
+     *
+     * @throws IllegalArgumentException if the argument count is odd or any key is not a string.
+     */
+    static Json of(Object... keyValuePairs) {
+        return JJson.of(keyValuePairs);
+    }
+
     static Optional<Json> from(Object object) {
         return JJson.from(object);
     }
