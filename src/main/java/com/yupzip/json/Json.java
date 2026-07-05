@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -186,6 +187,16 @@ public interface Json {
 
     List<BigDecimal> bigDecimals(String key);
 
+    UUID uuid(String key);
+
+    UUID uuidOr(String key, UUID defaultValue);
+
+    UUID uuidOrThrow(String key);
+
+    UUID uuidOrThrow(String key, RuntimeException e);
+
+    List<UUID> uuids(String key);
+
     Boolean bool(String key);
 
     boolean boolOr(String key, boolean defaultValue);
@@ -245,6 +256,10 @@ public interface Json {
     Json bigDecimal(String key, Consumer<BigDecimal> consumer);
 
     Json bigDecimals(String key, Consumer<List<BigDecimal>> consumer);
+
+    Json uuid(String key, Consumer<UUID> consumer);
+
+    Json uuids(String key, Consumer<List<UUID>> consumer);
 
     Json bool(String key, Consumer<Boolean> consumer);
 

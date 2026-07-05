@@ -8,6 +8,7 @@ import tools.jackson.databind.type.CollectionType;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Central access point for the {@link JsonMapper} used by the library.
@@ -73,6 +74,10 @@ public final class JsonMappers {
         return snapshot.listTypeBigDecimal;
     }
 
+    static CollectionType listTypeUuid() {
+        return snapshot.listTypeUuid;
+    }
+
     private static final class Snapshot {
         final JsonMapper mapper;
         final JavaType jsonType;
@@ -83,6 +88,7 @@ public final class JsonMappers {
         final CollectionType listTypeLong;
         final CollectionType listTypeDouble;
         final CollectionType listTypeBigDecimal;
+        final CollectionType listTypeUuid;
 
         private Snapshot(JsonMapper mapper) {
             this.mapper = mapper;
@@ -95,6 +101,7 @@ public final class JsonMappers {
             this.listTypeLong = tf.constructCollectionType(List.class, Long.class);
             this.listTypeDouble = tf.constructCollectionType(List.class, Double.class);
             this.listTypeBigDecimal = tf.constructCollectionType(List.class, BigDecimal.class);
+            this.listTypeUuid = tf.constructCollectionType(List.class, UUID.class);
         }
 
         static Snapshot of(JsonMapper mapper) {

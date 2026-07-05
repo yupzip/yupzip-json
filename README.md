@@ -78,12 +78,12 @@ This library requires JDK 17+
 <dependency>
     <groupId>com.yupzip.json</groupId>
     <artifactId>yupzip-json</artifactId>
-    <version>4.2.0</version>
+    <version>4.3.0</version>
 </dependency>
 ```
 ### Gradle
 ```groovy
-implementation group: 'com.yupzip.json', name: 'yupzip-json', version: '4.2.0'
+implementation group: 'com.yupzip.json', name: 'yupzip-json', version: '4.3.0'
 ```
 # Usage
 ## 1. Building
@@ -122,6 +122,7 @@ Double weight = person.decimal("weight");
 Long orderId = order.longInt("orderId"); // longInt chosen as getter short name as 'long' being a keyword
 BigDecimal price = order.bigDecimal("price");
 List<BigDecimal> amounts = order.bigDecimals("amounts");
+UUID requestId = order.uuid("requestId");
 List<String> contactNumbers = person.strings("contactNumbers");
 Json address = person.object("address");
 Date dob = person.date("dob", "yyyy-MM-dd");
@@ -147,7 +148,7 @@ Three variants per type. Choose by what you want on absent/null values:
         | `stringOrThrow(key)` | throws `PropertyRequiredException` if missing |
         | `stringOrThrow(key, ex)` | throws your exception if missing |
 
-The same family exists for `integer`, `longInt`, `decimal`, `bigDecimal`, `bool`, `object`, `date`, `localDate`.
+The same family exists for `integer`, `longInt`, `decimal`, `bigDecimal`, `uuid`, `bool`, `object`, `date`, `localDate`.
 
 ### Path-based access
 Any read accessor accepts a dot-separated path to walk nested objects and arrays. `[N]` indexes into a list. Wrap a key containing a literal `.` in backticks (`` ` ``) to opt out of path parsing:

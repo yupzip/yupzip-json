@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -377,6 +378,46 @@ class JJsonTest {
         BigDecimal[] total = {BigDecimal.ZERO};
         payload.bigDecimals("prices", list -> total[0] = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
         Assertions.assertEquals(new BigDecimal("6.60"), total[0]);
+    }
+
+    @Test
+    void shouldParseUuidValues() {
+        UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        UUID other = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        Json payload = Json.create()
+                .put("id", id)
+                .put("stringId", other.toString())
+                .put("ids", Arrays.asList(id.toString(), other.toString()));
+
+        Assertions.assertEquals(id, payload.uuid("id"));
+        Assertions.assertEquals(other, payload.uuid("stringId"));
+        Assertions.assertNull(payload.uuid("missing"));
+
+        Assertions.assertEquals(id, payload.uuidOr("id", other));
+        Assertions.assertEquals(other, payload.uuidOr("missing", other));
+
+        Assertions.assertEquals(id, payload.uuidOrThrow("id"));
+        Assertions.assertEquals(id, payload.uuidOrThrow("id", new PropertyRequiredException()));
+        Assertions.assertThrows(PropertyRequiredException.class, () -> payload.uuidOrThrow("missing"));
+        Assertions.assertThrows(PropertyRequiredException.class, () -> payload.uuidOrThrow("missing", new PropertyRequiredException()));
+
+        List<UUID> ids = payload.uuids("ids");
+        Assertions.assertEquals(2, ids.size());
+        Assertions.assertEquals(id, ids.get(0));
+
+        UUID[] consumed = new UUID[1];
+        payload.uuid("id", v -> consumed[0] = v);
+        Assertions.assertEquals(id, consumed[0]);
+
+        int[] count = {0};
+        payload.uuids("ids", list -> count[0] = list.size());
+        Assertions.assertEquals(2, count[0]);
+    }
+
+    @Test
+    void shouldThrowJsonParseExceptionForInvalidUuid() {
+        Json payload = Json.create().put("id", "not-a-uuid");
+        Assertions.assertThrows(JsonParseException.class, () -> payload.uuid("id"));
     }
 
     @Test

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -509,6 +510,47 @@ public class JJson implements Json {
         }
     }
 
+    public UUID uuid(String key) {
+        try {
+            return get(key, UUID.class);
+        } catch (Exception e) {
+            throw new JsonParseException("Error parsing value to UUID for key " + key, e);
+        }
+    }
+
+    public UUID uuidOr(String key, UUID defaultValue) {
+        try {
+            if (null != resolve(key)) {
+                return uuid(key);
+            }
+        } catch (Exception e) {
+            // return default on parsing error
+        }
+        return defaultValue;
+    }
+
+    public UUID uuidOrThrow(String key) {
+        if (null == resolve(key)) {
+            throw new PropertyRequiredException();
+        }
+        return uuid(key);
+    }
+
+    public UUID uuidOrThrow(String key, RuntimeException e) {
+        if (null == resolve(key)) {
+            throw e;
+        }
+        return uuid(key);
+    }
+
+    public List<UUID> uuids(String key) {
+        try {
+            return JsonMappers.current().convertValue(resolve(key), JsonMappers.listTypeUuid());
+        } catch (Exception e) {
+            throw new JsonParseException("Error parsing value to UUID list for key " + key, e);
+        }
+    }
+
     public Boolean bool(String key) {
         try {
             return get(key, Boolean.class);
@@ -687,6 +729,16 @@ public class JJson implements Json {
 
     public Json bigDecimals(String key, Consumer<List<BigDecimal>> consumer) {
         consumer.accept(JsonMappers.current().convertValue(resolve(key), JsonMappers.listTypeBigDecimal()));
+        return this;
+    }
+
+    public Json uuid(String key, Consumer<UUID> consumer) {
+        consumer.accept(uuid(key));
+        return this;
+    }
+
+    public Json uuids(String key, Consumer<List<UUID>> consumer) {
+        consumer.accept(JsonMappers.current().convertValue(resolve(key), JsonMappers.listTypeUuid()));
         return this;
     }
 
