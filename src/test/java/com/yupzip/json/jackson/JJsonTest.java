@@ -416,8 +416,15 @@ class JJsonTest {
 
     @Test
     void shouldThrowJsonParseExceptionForInvalidUuid() {
-        Json payload = Json.create().put("id", "not-a-uuid");
+        UUID fallback = UUID.fromString("00000000-0000-0000-0000-000000000009");
+        Json payload = Json.create()
+                .put("id", "not-a-uuid")
+                .put("ids", "not-a-list");
+
         Assertions.assertThrows(JsonParseException.class, () -> payload.uuid("id"));
+        Assertions.assertThrows(JsonParseException.class, () -> payload.uuids("ids"));
+        // uuidOr swallows the parse error and returns the default
+        Assertions.assertEquals(fallback, payload.uuidOr("id", fallback));
     }
 
     @Test
