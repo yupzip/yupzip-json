@@ -287,12 +287,12 @@ On Spring Boot 4.0+, add the [`spring-boot-starter-yupzip-json`](https://github.
 <dependency>
     <groupId>com.yupzip.json</groupId>
     <artifactId>spring-boot-starter-yupzip-json</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 **Gradle:**
 ```groovy
-implementation 'com.yupzip.json:spring-boot-starter-yupzip-json:1.1.0'
+implementation 'com.yupzip.json:spring-boot-starter-yupzip-json:1.2.0'
 ```
 
 For Spring Boot 3.x or manual setup, see the [starter README](https://github.com/yupzip/spring-boot-starter-yupzip-json#readme).
