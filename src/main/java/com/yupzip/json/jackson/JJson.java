@@ -775,6 +775,15 @@ public class JJson implements Json {
     }
 
     @Override
+    public String pretty() {
+        try {
+            return JsonMappers.current().writerWithDefaultPrettyPrinter().writeValueAsString(this);
+        } catch (JacksonException e) {
+            throw new JsonParseException(e);
+        }
+    }
+
+    @Override
     public String toString() {
         try {
             return JsonMappers.current().writer().writeValueAsString(this);

@@ -83,6 +83,8 @@ public interface Json {
     @JsonAnyGetter
     Map<String, Object> asMap();
 
+    String pretty();
+
     Json put(String key, Json value);
 
     Json put(String key, Iterable<Json> iterable);

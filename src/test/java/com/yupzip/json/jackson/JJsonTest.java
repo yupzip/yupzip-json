@@ -923,4 +923,24 @@ class JJsonTest {
         Assertions.assertEquals(LocalDate.of(2024, 10, 1), payload.localDateOrThrow("date", "yyyy-MM-dd", new RuntimeException()));
         Assertions.assertThrows(RuntimeException.class, () -> payload.localDate("date2", "yyyy-MMM-dd"));
     }
+
+    @Test
+    void shouldPrintPrettyJson() {
+        Json person = Json.create()
+                .put("id", 1)
+                .put("address", Json.create().put("city", "Sydney"));
+
+        String pretty = person.pretty();
+
+        Assertions.assertTrue(pretty.contains(System.lineSeparator()) || pretty.contains("\n"));
+        Assertions.assertTrue(pretty.contains("\"city\""));
+        Assertions.assertEquals(person, Json.parse(pretty));
+        Assertions.assertEquals(person.toString(), Json.parse(pretty).toString());
+        Assertions.assertFalse(person.toString().contains("\n"));
+    }
+
+    @Test
+    void shouldPrintPrettyEmptyJson() {
+        Assertions.assertEquals("{ }", Json.create().pretty());
+    }
 }

@@ -78,12 +78,12 @@ This library requires JDK 17+
 <dependency>
     <groupId>com.yupzip.json</groupId>
     <artifactId>yupzip-json</artifactId>
-    <version>4.3.0</version>
+    <version>4.4.0</version>
 </dependency>
 ```
 ### Gradle
 ```groovy
-implementation group: 'com.yupzip.json', name: 'yupzip-json', version: '4.3.0'
+implementation group: 'com.yupzip.json', name: 'yupzip-json', version: '4.4.0'
 ```
 # Usage
 ## 1. Building
@@ -177,6 +177,9 @@ user.valueEquals("status", "OPEN");
 
 // find() - deep lookup
 String street = response.find("streetLine", String.class); // recurses nested objects/arrays
+
+// pretty() - indented JSON for logs and debugging (toString() stays compact)
+log.debug("payload: {}", response.pretty());
 
 // static helper methods
 Json.isValid(payload);
